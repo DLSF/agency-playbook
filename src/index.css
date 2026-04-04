@@ -7,7 +7,7 @@
    ========================================================================== 
 */
 
-@theme {
+:root {
   /* Fonts */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
@@ -34,6 +34,23 @@
   
   /* Max Width */
   --width-max-content: 1100px;
+
+  /* Legacy variable support for existing components and Tailwind utilities */
+  --brand: var(--color-brand);
+  --brand-dark: var(--color-brand-dark);
+  --bg: var(--color-bg);
+  --panel: var(--color-panel);
+  --line: var(--color-line);
+  --muted: var(--color-muted);
+  --accent: var(--color-accent);
+  --template-bg: var(--color-template-bg);
+  --text: var(--color-text);
+  --nav-text: var(--color-nav-text);
+  --header-bg: var(--color-header-bg);
+  --radius: var(--radius-card);
+  --shadow: var(--shadow-card);
+  --shadow-hover: var(--shadow-card-hover);
+  --max: var(--width-max-content);
 }
 
 /* Dark Mode Overrides */
@@ -52,26 +69,31 @@
   --shadow-card-hover: 0 20px 38px rgba(0, 0, 0, 0.5);
 }
 
-@layer base {
-  :root {
-    /* Legacy variable support for existing components and Tailwind utilities */
-    --brand: var(--color-brand);
-    --brand-dark: var(--color-brand-dark);
-    --bg: var(--color-bg);
-    --panel: var(--color-panel);
-    --line: var(--color-line);
-    --muted: var(--color-muted);
-    --accent: var(--color-accent);
-    --template-bg: var(--color-template-bg);
-    --text: var(--color-text);
-    --nav-text: var(--color-nav-text);
-    --header-bg: var(--color-header-bg);
-    --radius: var(--radius-card);
-    --shadow: var(--shadow-card);
-    --shadow-hover: var(--shadow-card-hover);
-    --max: var(--width-max-content);
-  }
+@theme {
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 
+  --color-brand: var(--color-brand);
+  --color-brand-dark: var(--color-brand-dark);
+  
+  --color-bg: var(--color-bg);
+  --color-panel: var(--color-panel);
+  --color-line: var(--color-line);
+  --color-muted: var(--color-muted);
+  --color-accent: var(--color-accent);
+  --color-template-bg: var(--color-template-bg);
+  --color-text: var(--color-text);
+  --color-nav-text: var(--color-nav-text);
+  --color-header-bg: var(--color-header-bg);
+
+  --radius-card: var(--radius-card);
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+  
+  --width-max-content: var(--width-max-content);
+}
+
+@layer base {
   * { box-sizing: border-box; }
 
   body {

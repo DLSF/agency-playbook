@@ -3158,13 +3158,13 @@ const Directory = () => {
  * Allows users to generate and copy a professional agency signature.
  */
 const Signature = ({ user }: { user: UserProfile }) => {
-  const baseUrl = "https://neocities.org";
+  const baseUrl = "images"; // Use relative path to public/images
   const icons = {
-    addr: `${baseUrl}/images/mappin.png`,
-    phone: `${baseUrl}/images/phone.png`,
-    web: `${baseUrl}/images/website.png`,
-    fb: `${baseUrl}/images/facebook.png`,
-    sfLogo: `${baseUrl}/images/statefarmlogo.png` 
+    addr: `${baseUrl}/mappin.png`,
+    phone: `${baseUrl}/phone.png`,
+    web: `${baseUrl}/website.png`,
+    fb: `${baseUrl}/facebook.png`,
+    sfLogo: `${baseUrl}/statefarmlogo.png` 
   };
 
   const copySignature = () => {
@@ -3446,21 +3446,21 @@ const LifeHub = () => (
 
 const PCStudyGuide = () => {
   const slides = [
-    { img: "/images/pcstudy/pcstudy00.png", alt: "Cover" },
-    { img: "/images/pcstudy/pcstudy01.png", alt: "Risk" },
-    { img: "/images/pcstudy/pcstudy02.png", alt: "DICE" },
-    { img: "/images/pcstudy/pcstudy03.png", alt: "Legal" },
-    { img: "/images/pcstudy/pcstudy04.png", alt: "Prop vs Liab" },
-    { img: "/images/pcstudy/pcstudy05.png", alt: "Valuation" },
-    { img: "/images/pcstudy/pcstudy06.png", alt: "Perils" },
-    { img: "/images/pcstudy/pcstudy07.png", alt: "Negligence" },
-    { img: "/images/pcstudy/pcstudy08.png", alt: "Defense" },
-    { img: "/images/pcstudy/pcstudy09.png", alt: "Residential" },
-    { img: "/images/pcstudy/pcstudy10.png", alt: "Commercial" },
-    { img: "/images/pcstudy/pcstudy11.png", alt: "Professional" },
-    { img: "/images/pcstudy/pcstudy12.png", alt: "Compliance" },
-    { img: "/images/pcstudy/pcstudy13.png", alt: "Safety Nets" },
-    { img: "/images/pcstudy/pcstudy14.png", alt: "Anomalies" },
+    { img: "images/pcstudy/pcstudy00.png", alt: "Cover" },
+    { img: "images/pcstudy/pcstudy01.png", alt: "Risk" },
+    { img: "images/pcstudy/pcstudy02.png", alt: "DICE" },
+    { img: "images/pcstudy/pcstudy03.png", alt: "Legal" },
+    { img: "images/pcstudy/pcstudy04.png", alt: "Prop vs Liab" },
+    { img: "images/pcstudy/pcstudy05.png", alt: "Valuation" },
+    { img: "images/pcstudy/pcstudy06.png", alt: "Perils" },
+    { img: "images/pcstudy/pcstudy07.png", alt: "Negligence" },
+    { img: "images/pcstudy/pcstudy08.png", alt: "Defense" },
+    { img: "images/pcstudy/pcstudy09.png", alt: "Residential" },
+    { img: "images/pcstudy/pcstudy10.png", alt: "Commercial" },
+    { img: "images/pcstudy/pcstudy11.png", alt: "Professional" },
+    { img: "images/pcstudy/pcstudy12.png", alt: "Compliance" },
+    { img: "images/pcstudy/pcstudy13.png", alt: "Safety Nets" },
+    { img: "images/pcstudy/pcstudy14.png", alt: "Anomalies" },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
