@@ -1,0 +1,378 @@
+@import "tailwindcss";
+
+/* 
+   ==========================================================================
+   AGENCY PLAYBOOK - GLOBAL STYLES
+   Refactored for Tailwind CSS v4 & Modern Theming
+   ========================================================================== 
+*/
+
+@theme {
+  /* Fonts */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Brand Colors */
+  --color-brand: #1d4ed8;
+  --color-brand-dark: #163ea8;
+  
+  /* UI Colors */
+  --color-bg: #f5f7fb;
+  --color-panel: #ffffff;
+  --color-line: #dbe3ef;
+  --color-muted: #6b7280;
+  --color-accent: #eff6ff;
+  --color-template-bg: #f8fafc;
+  --color-text: #1f2937;
+  --color-nav-text: #dbeafe;
+  --color-header-bg: #0f172a;
+
+  /* Layout */
+  --radius-card: 18px;
+  --shadow-card: 0 10px 24px rgba(15, 23, 42, 0.08);
+  --shadow-card-hover: 0 20px 38px rgba(15, 23, 42, 0.18);
+  
+  /* Max Width */
+  --width-max-content: 1100px;
+}
+
+/* Dark Mode Overrides */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme dark {
+  --color-bg: #0b1220;
+  --color-panel: #111827;
+  --color-line: #374151;
+  --color-muted: #9ca3af;
+  --color-accent: #172554;
+  --color-template-bg: #0f172a;
+  --color-text: #e5e7eb;
+  --color-header-bg: #030712;
+  --color-brand: #60a5fa;
+  --color-brand-dark: #93c5fd;
+  --shadow-card: 0 10px 24px rgba(0, 0, 0, 0.35);
+  --shadow-card-hover: 0 20px 38px rgba(0, 0, 0, 0.5);
+}
+
+@layer base {
+  :root {
+    /* Legacy variable support for existing components and Tailwind utilities */
+    --brand: var(--color-brand);
+    --brand-dark: var(--color-brand-dark);
+    --bg: var(--color-bg);
+    --panel: var(--color-panel);
+    --line: var(--color-line);
+    --muted: var(--color-muted);
+    --accent: var(--color-accent);
+    --template-bg: var(--color-template-bg);
+    --text: var(--color-text);
+    --nav-text: var(--color-nav-text);
+    --header-bg: var(--color-header-bg);
+    --radius: var(--radius-card);
+    --shadow: var(--shadow-card);
+    --shadow-hover: var(--shadow-card-hover);
+    --max: var(--width-max-content);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    transition: background-color 0.3s, color 0.3s;
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  main { padding-top: 42px; }
+
+  /* 🚀 Breathing Room: Ensures content doesn't hit the bottom of the viewport */
+  main .wrap { 
+    padding-bottom: 120px !important; 
+  }
+
+  section { margin-top: 28px; }
+
+  .wrap {
+    margin: 0 auto;
+    max-width: var(--max);
+    padding: 0 20px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    color: var(--text);
+    font-weight: 700;
+  }
+}
+
+@layer components {
+  /* ==========================================================================
+     1. HEADER & NAVIGATION
+     ========================================================================== */
+  header {
+    background: var(--header-bg);
+    border-bottom: 4px solid var(--brand);
+    color: #fff;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 0;
+    width: 100%;
+  }
+
+  .brand-logo {
+    flex: 1;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+
+  .brand-logo a { color: inherit; text-decoration: none; }
+
+  nav {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  nav a {
+    color: var(--nav-text);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+
+  nav a:hover, nav a.active {
+    color: #ffffff;
+  }
+
+  nav a.active {
+    text-decoration: underline;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 2px;
+  }
+
+  /* ==========================================================================
+     2. CARDS & TILES
+     ========================================================================== */
+  .hero-card, .section-card, .step-card, .template-card, .tile {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .hero-card { margin-bottom: 28px; padding: 32px; }
+  .section-card { padding: 30px; }
+  .template-card { padding: 22px; }
+
+  .tile {
+    display: block;
+    text-decoration: none;
+    padding: 24px;
+  }
+
+  .tile:hover {
+    transform: translateY(-5px);
+    border-color: var(--brand);
+    box-shadow: var(--shadow-hover);
+  }
+
+  /* Grid Spacing Hack: Forces grids to stay away from the bottom */
+  .tiles::after, .grid-2::after {
+    content: "";
+    display: block;
+    height: 100px; 
+    grid-column: 1 / -1;
+    pointer-events: none;
+  }
+
+  /* ==========================================================================
+     3. BUTTONS & INTERACTION
+     ========================================================================== */
+  .btn {
+    appearance: none;
+    background: var(--panel);
+    border: 1px solid var(--brand);
+    border-radius: 12px;
+    color: var(--brand);
+    cursor: pointer;
+    display: inline-block;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
+    padding: 10px 16px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary { background: var(--brand); color: #fff; }
+  
+  [data-theme="dark"] .btn-primary { color: #0b1220; }
+
+  /* ==========================================================================
+     4. TEMPLATE BOXES & ACCORDIONS
+     ========================================================================== */
+  .template-box {
+    background: var(--template-bg);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    font-size: 0.95rem;
+    margin-top: 14px;
+    padding: 14px;
+    white-space: pre-wrap;
+    color: var(--text);
+    word-break: break-word;
+  }
+
+  .step-card summary {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    list-style: none;
+    padding: 22px 24px;
+    font-weight: 700;
+  }
+
+  .step-card summary::-webkit-details-marker { display: none; }
+  .step-card summary::after { color: var(--brand); content: "+"; font-size: 1.6rem; }
+  .step-card[open] summary::after { content: "–"; }
+
+  /* ==========================================================================
+     5. FORMS & INPUTS
+     ========================================================================== */
+  label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--brand);
+    margin-bottom: 8px;
+  }
+
+  select, input[type="text"], textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--template-bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+
+  select:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--brand);
+  }
+
+  /* ==========================================================================
+     6. SIGNATURE PREVIEW (FORCE WHITE)
+     ========================================================================== */
+  .signature-preview-container {
+    background-color: #ffffff !important;
+    color: #1f2937 !important;
+    padding: 30px;
+    border: 1px solid #dbe3ef;
+    border-radius: 12px;
+    margin: 20px 0;
+    display: inline-block;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .signature-preview-container a {
+    color: #1f2937 !important;
+    text-decoration: underline !important;
+    text-decoration-color: #1d4ed8 !important;
+  }
+
+  /* ==========================================================================
+     7. UTILITIES
+     ========================================================================== */
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  
+  .eyebrow {
+    background: var(--accent);
+    border-radius: 999px;
+    color: var(--brand-dark);
+    font-weight: 700;
+    padding: 5px 12px;
+    display: inline-block;
+    letter-spacing: 0.05rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* Markdown Body Styles */
+  .markdown-body {
+    line-height: 1.6;
+  }
+  .markdown-body p {
+    margin-bottom: 1rem;
+  }
+  .markdown-body p:last-child {
+    margin-bottom: 0;
+  }
+  .markdown-body u {
+    text-decoration: underline;
+  }
+  .markdown-body strong {
+    font-weight: 700;
+  }
+  .markdown-body ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .markdown-body li {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* ==========================================================================
+   8. TOAST NOTIFICATIONS
+   ========================================================================== */
+#toast {
+  visibility: hidden;
+  min-width: 250px;
+  background-color: var(--header-bg);
+  color: #fff;
+  text-align: center;
+  border-radius: 12px;
+  padding: 16px;
+  position: fixed;
+  z-index: 100;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  border: 1px solid var(--brand);
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+#toast.show {
+  visibility: visible;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@keyframes fadein { from { opacity: 0; bottom: 0; } to { opacity: 1; bottom: 30px; } }
+@keyframes fadeout { from { opacity: 1; bottom: 30px; } to { opacity: 0; bottom: 0; } }
