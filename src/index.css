@@ -16,7 +16,7 @@
   --color-brand: #1d4ed8;
   --color-brand-dark: #163ea8;
   
-  /* UI Colors */
+  /* UI Colors (Default Light) */
   --color-bg: #f5f7fb;
   --color-panel: #ffffff;
   --color-line: #dbe3ef;
@@ -37,9 +37,7 @@
 }
 
 /* Dark Mode Overrides */
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-
-@theme dark {
+[data-theme="dark"] {
   --color-bg: #0b1220;
   --color-panel: #111827;
   --color-line: #374151;
