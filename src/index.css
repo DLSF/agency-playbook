@@ -396,3 +396,53 @@
 
 @keyframes fadein { from { opacity: 0; bottom: 0; } to { opacity: 1; bottom: 30px; } }
 @keyframes fadeout { from { opacity: 1; bottom: 30px; } to { opacity: 0; bottom: 0; } }
+
+/* ==========================================================================
+   9. PRINT STYLES
+   ========================================================================== */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .wrap {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  main {
+    padding-top: 0 !important;
+  }
+
+  main .wrap {
+    padding-bottom: 0 !important;
+  }
+
+  .hero-card, .section-card, .step-card, .template-card, .tile {
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+    background: white !important;
+    margin-bottom: 0 !important;
+  }
+
+  header, footer, nav, .eyebrow, .btn, .topbar {
+    display: none !important;
+  }
+
+  /* Force colors in print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ensure the print target is the only thing visible if specified */
+  body.printing-active .no-print-during-print {
+    display: none !important;
+  }
+}

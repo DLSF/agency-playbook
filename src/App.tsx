@@ -3,7 +3,7 @@ import { HashRouter as Router, Routes, Route, Link, useLocation, Navigate, useNa
 import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
-import { Sun, Moon, LogOut, Copy, Mail, AlertCircle, ChevronDown, ChevronUp, Maximize2, Minimize2, ArrowLeft, ArrowRight, BookOpen, ShieldCheck, FileText, GraduationCap, ExternalLink, Globe, FolderOpen, PhoneCall, User, CheckCircle2 } from 'lucide-react';
+import { Sun, Moon, LogOut, Copy, Mail, AlertCircle, ChevronDown, ChevronUp, Maximize2, Minimize2, ArrowLeft, ArrowRight, BookOpen, ShieldCheck, FileText, GraduationCap, ExternalLink, Globe, FolderOpen, PhoneCall, User, CheckCircle2, Printer } from 'lucide-react';
 import { USER_DIRECTORY, PLAYBOOK_PAGES } from './constants';
 import { UserProfile } from './types';
 
@@ -1444,67 +1444,125 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
       )
     },
     {
-      title: "X2-X4: Outreach Sequence",
+      title: "X2 Outreach",
       desc: "XA (Aged) and XL (Lead) Templates",
       content: (
         <div className="space-y-8">
-          {[
-            { step: "X2", aged: "Hello, CUSTOMER. It’s NAME with State Farm! We provided you with a quote some time ago and it looks like you may have a renewal coming up soon and State Farm recently had a price decrease. The timing to get a quote couldn’t be better. Would you mind if I sent one over? Thanks // NAME // State Farm // 281.547.7209", lead: "Hello, CUSTOMER. It’s NAME with State Farm, I helped you with a quote when you were shopping for insurance in MONTH. It looks like your renewal is coming up soon and State Farm recently lowered prices. The timing to get a quote couldn’t be better. Would you mind if I sent one over? Thanks // NAME // State Farm // 281.547.7209" },
-            { step: "X3", aged: "Good TIMEDAY, CUSTOMER. It’s NAME with State Farm. Got a quick question for you. Have you had an opportunity to get a fresh insurance quote? State Farm recently had a price decrease. Would you mind if I sent over a quote, including the decrease? Thanks // NAME // State Farm // 281.547.7209", lead: "Hey there, CUSTOMER. NAME with State Farm here. Wanted to reach out and ask…Have you received an auto insurance quote to compare with your upcoming renewal? If not, you could be missing out. Especially with State Farm’s recently lowered prices. May I send over a quote and get your feedback? Thanks // NAME // State Farm // 281.547.7209" },
-            { step: "X4", aged: "We know insurance rates have been crazy for a while now. However, State Farm has had several price decreases on auto and home insurance. Would you be opposed to looking at a quote including State Farms’ most recent price decrease? Thanks // NAME // State Farm // 281.547.7209", lead: "Hey CUSTOMER. Did you receive your renewal letter for your auto coverage yet? Looks like your renewal is coming up quickly. I just wanted to send you a quote and see how we compare. Can I email that over to you? Thanks // NAME // State Farm // 281.547.7209" }
-          ].map((s, i) => (
-            <div key={i} className="space-y-4">
-              <h4 className="font-bold text-[#1d4ed8] border-b border-[var(--line)] pb-2">{s.step} Outreach</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <TemplateCard 
-                  title={`${s.step} - XA (Aged)`}
-                  text={s.aged}
-                  user={user}
-                />
-                <TemplateCard 
-                  title={`${s.step} - XL (Lead)`}
-                  text={s.lead}
-                  user={user}
-                />
-              </div>
+          {/* XA Section */}
+          <div className="space-y-3">
+            <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA2 (Aged)</h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TemplateCard title="XA2 Text" text="Hello, CUSTOMER. It’s NAME with State Farm! We provided you with a quote some time ago and it looks like you may have a renewal coming up soon and State Farm recently had a price decrease. The timing to get a quote couldn’t be better. Would you mind if I sent one over? Thanks // NAME // State Farm // 281.547.7209" user={user} />
+              <EmailTemplateCard title="XA2 Email" text="Subject: State Farm Price Decrease and Fresh Quote\n\nHello CUSTOMER, it's NAME w/ State Farm!\n\nWe provided you a quote some time ago and it looks like you may have a renewal coming up soon and State Farm recently had a price decrease.\n\nThe timing to get a quote couldn’t be better. Would you mind if I sent one over?" user={user} />
             </div>
-          ))}
+          </div>
+
+          {/* XL Section */}
+          <div className="space-y-3">
+            <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL2 (Lead)</h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TemplateCard title="XL2 Text" text="Hello, CUSTOMER. It’s NAME with State Farm, I helped you with a quote when you were shopping for insurance in MONTH. It looks like your renewal is coming up soon and State Farm recently lowered prices. The timing to get a quote couldn’t be better. Would you mind if I sent one over? Thanks // NAME // State Farm // 281.547.7209" user={user} />
+              <EmailTemplateCard title="XL2 Email" text="Subject: State Farm Price Decrease and Fresh Quote\n\nHello, CUSTOMER.\n\nIt’s NAME with State Farm, I helped you with a quote when you were shopping for insurance in MONTH.\n\nIt looks like your renewal is coming up soon and State Farm has recently lowered prices." user={user} />
+            </div>
+          </div>
         </div>
       )
     },
     {
-      title: "X5-X6: Final Touches",
-      desc: "Closing the loop",
+      title: "X3 Outreach",
+      desc: "XA (Aged) and XL (Lead) Templates",
       content: (
         <div className="space-y-8">
-          <div className="space-y-4">
-            <h4 className="font-bold text-[#1d4ed8] border-b border-[var(--line)] pb-2">X5 Outreach</h4>
+          {/* XA Section */}
+          <div className="space-y-3">
+            <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA3 (Aged)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TemplateCard 
-                title="X5 - XA (Aged)"
-                text="Hey CUSTOMER, were you able to find adequate insurance coverage that you were happy to pay for? NAME // State Farm // 281.547.7209"
-                user={user}
-              />
-              <TemplateCard 
-                title="X5 - XL (Lead)"
-                text="Hey CUSTOMER, were you able to find adequate insurance coverage that you were happy to pay for? NAME // State Farm // 281.547.7209"
-                user={user}
-              />
+              <TemplateCard title="XA3 Text" text="Good TIMEDAY, CUSTOMER. It’s NAME with State Farm. Got a quick question for you. Have you had an opportunity to get a fresh insurance quote? State Farm recently had a price decrease. Would you mind if I sent over a quote, including the decrease? Thanks // NAME // State Farm // 281.547.7209" user={user} />
+              <EmailTemplateCard title="XA3 Email" text="Subject: Increased Insurance Rate? Try a State Farm Quote\n\nHello CUSTOMER, it's NAME w/ State Farm!\n\nWe know insurance rates have been crazy for a while now. However, State Farm has had several price decreases on auto and home insurance.\n\nWould you be opposed to looking at a quote including State Farm’s most recent price decrease?" user={user} />
             </div>
           </div>
-          <div className="space-y-4">
-            <h4 className="font-bold text-[#1d4ed8] border-b border-[var(--line)] pb-2">X6 Outreach</h4>
+
+          {/* XL Section */}
+          <div className="space-y-3">
+            <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL3 (Lead)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TemplateCard 
-                title="X6 - XA (Aged)"
-                text="CUSTOMER, I know you are busy and just wanted to reach out one last time…When you’re ready to have that discussion about what’s important to you about your insurance, I’m here! I’ll check with you in a few months and see if we can get what you love protected then. Thanks // NAME // State Farm // 281.547.7209"
-                user={user}
-              />
-              <TemplateCard 
-                title="X6 - XL (Lead)"
-                text="CUSTOMER, I know you are busy and just wanted to reach out one last time…If you decide you’re ready to have that discussion about what’s important to you about your insurance, I’m here! Otherwise, I’ll be back at your next renewal! Thanks // NAME // State Farm // 281.547.7209"
-                user={user}
-              />
+              <TemplateCard title="XL3 Text" text="Hey there, CUSTOMER. NAME with State Farm here. Wanted to reach out and ask…Have you received an auto insurance quote to compare with your upcoming renewal? If not, you could be missing out. Especially with State Farm’s recently lowered prices. May I send over a quote and get your feedback? Thanks // NAME // State Farm // 281.547.7209" user={user} />
+              <EmailTemplateCard title="XL3 Email" text="Subject: Auto Quote Comparison from State Farm\n\nHey there, CUSTOMER.\n\nWanted to reach out and ask…Have you received an auto insurance quote to compare with your upcoming renewal?\n\nIf not, you could be missing out. Especially, with State Farm’s recent rate decrease.\n\nMay I send over a quote and get your feedback?" user={user} />
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "X4 Outreach",
+      desc: "XA (Aged) and XL (Lead) Templates",
+      content: (
+        <div className="space-y-8">
+          {/* XA Section */}
+          <div className="space-y-3">
+            <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA4 (Aged)</h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TemplateCard title="XA4 Text" text="We know insurance rates have been crazy for a while now. However, State Farm has had several price decreases on auto and home insurance. Would you be opposed to looking at a quote including State Farms’ most recent price decrease? Thanks // NAME // State Farm // 281.547.7209" user={user} />
+              <EmailTemplateCard title="XA4 Email" text="Subject: Quick Question from State Farm\n\nGood afternoon, CUSTOMER.\n\nIt’s NAME with State Farm.\n\nGot a quick question for you.\n\nHave you had an opportunity to get a new insurance quote?\n\nState Farm has had a few rate decreases this year.\n\nWould you mind if I sent over a quote?" user={user} />
+            </div>
+          </div>
+
+          {/* XL Section */}
+          <div className="space-y-3">
+            <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL4 (Lead)</h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TemplateCard title="XL4 Text" text="Hey CUSTOMER. Did you receive your renewal letter for your auto coverage yet? Looks like your renewal is coming up quickly. I just wanted to send you a quote and see how we compare. Can I email that over to you? Thanks // NAME // State Farm // 281.547.7209" user={user} />
+              <EmailTemplateCard title="XL4 Email" text="Subject: Upcoming Insurance Renewal?? Get a quote from State Farm today including our recent decrease\n\nHey CUSTOMER. Did you receive your renewal letter for your auto coverage yet?\n\nLooks like your renewal is coming up quick.\n\nI just wanted to send you a quote and see how we compare.\n\nCan I email that over to you?" user={user} />
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "X5 Outreach",
+      desc: "XA (Aged) and XL (Lead) Templates",
+      content: (
+        <div className="space-y-8">
+          {/* XA Section */}
+          <div className="space-y-3">
+            <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA5 (Aged)</h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TemplateCard title="XA5 Text" text="Hey CUSTOMER, were you able to find adequate insurance coverage that you were happy to pay for? NAME // State Farm // 281.547.7209" user={user} />
+              <EmailTemplateCard title="XA5 Email" text="Subject: Are you happy with your current insurance?\n\nHey CUSTOMER,\n\nLooks like your auto renewal may be coming up soon and you deserve to be happy with your insurance company and the coverage and customer service they provide.\n\nWere you able to find adequate insurance coverage that you were happy to pay for?" user={user} />
+            </div>
+          </div>
+
+          {/* XL Section */}
+          <div className="space-y-3">
+            <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL5 (Lead)</h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TemplateCard title="XL5 Text" text="Hey CUSTOMER, were you able to find adequate insurance coverage that you were happy to pay for? NAME // State Farm // 281.547.7209" user={user} />
+              <EmailTemplateCard title="XL5 Email" text="Subject: Are you happy with your current insurance?\n\nHey CUSTOMER,\n\nLooks like your auto renewal may be coming up soon and you deserve to be happy with your insurance company and the coverage and customer service they provide.\n\nWere you able to find adequate insurance coverage that you were happy to pay for?" user={user} />
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "X6 Outreach",
+      desc: "XA (Aged) and XL (Lead) Templates",
+      content: (
+        <div className="space-y-8">
+          {/* XA Section */}
+          <div className="space-y-3">
+            <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA6 (Aged)</h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TemplateCard title="XA6 Text" text="CUSTOMER, I know you are busy and just wanted to reach out one last time…When you’re ready to have that discussion about what’s important to you about your insurance, I’m here! I’ll check with you in a few months and see if we can get what you love protected then. Thanks // NAME // State Farm // 281.547.7209" user={user} />
+              <EmailTemplateCard title="XA6 Email" text="Subject: Get coverage for what's important to you\n\nCUSTOMER, I know you are busy and just wanted to reach out one last time…\n\nWhen you’re ready to have that discussion about what’s important to you about your insurance, I’m here!\n\nI’ll check with you in a few months and see if we can get what you love protected then." user={user} />
+            </div>
+          </div>
+
+          {/* XL Section */}
+          <div className="space-y-3">
+            <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL6 (Lead)</h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <TemplateCard title="XL6 Text" text="CUSTOMER, I know you are busy and just wanted to reach out one last time…If you decide you’re ready to have that discussion about what’s important to you about your insurance, I’m here! Otherwise, I’ll be back at your next renewal! Thanks // NAME // State Farm // 281.547.7209" user={user} />
+              <EmailTemplateCard title="XL6 Email" text="Subject: Getting the Right Coverage for what's important to YOU!\n\nCUSTOMER,\n\nI know you are busy and just wanted to reach out one last time…\n\nIf you decide you’re ready to have that discussion about what’s important to you, I’m here!\n\nOtherwise, I’ll be back at your next renewal!" user={user} />
             </div>
           </div>
         </div>
@@ -2288,6 +2346,30 @@ const WordTracks = ({ user }: { user: UserProfile | null }) => {
   const [openSection, setOpenSection] = useState<number | null>(null);
   const { applyTokens } = useTokens(user);
 
+  const handlePrint = (index: number) => {
+    // Add printing class to body
+    document.body.classList.add('printing-active');
+    
+    // Hide all other elements during print using a temporary style
+    const style = document.createElement('style');
+    style.id = 'print-style';
+    style.innerHTML = `
+      @media print {
+        .word-track-section-container:not(:nth-child(${index + 1})) { display: none !important; }
+        .word-tracks-header { display: none !important; }
+        header, footer, nav, .eyebrow, .btn, .topbar { display: none !important; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    window.print();
+
+    // Cleanup
+    document.body.classList.remove('printing-active');
+    const styleElement = document.getElementById('print-style');
+    if (styleElement) styleElement.remove();
+  };
+
   const sections = [
     {
       title: "X-Date Script",
@@ -2915,8 +2997,8 @@ const WordTracks = ({ user }: { user: UserProfile | null }) => {
 
   return (
     <div className="space-y-10">
-      <section className="bg-[var(--panel)] border border-[var(--line)] rounded-[var(--radius)] shadow-[var(--shadow)] p-8">
-        <Link to="/sales" className="text-[#1d4ed8] text-sm font-bold flex items-center gap-1 mb-4 hover:underline">
+      <section className="bg-[var(--panel)] border border-[var(--line)] rounded-[var(--radius)] shadow-[var(--shadow)] p-8 word-tracks-header">
+        <Link to="/sales" className="text-[#1d4ed8] text-sm font-bold flex items-center gap-1 mb-4 hover:underline no-print">
           <ArrowLeft size={14} /> Back to Sales Hub
         </Link>
         <span className="inline-block bg-[var(--accent)] text-[var(--brand-dark)] text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4">
@@ -2928,17 +3010,29 @@ const WordTracks = ({ user }: { user: UserProfile | null }) => {
 
       <div className="space-y-4">
         {sections.map((section, i) => (
-          <div key={i} className="bg-[var(--panel)] border border-[var(--line)] rounded-[var(--radius)] shadow-[var(--shadow)] overflow-hidden">
-            <button 
-              onClick={() => setOpenSection(openSection === i ? null : i)}
-              className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-[var(--accent)] transition-colors"
-            >
-              <div className="flex flex-col">
-                <h3 className="font-bold text-lg">{section.title}</h3>
-                {section.subtitle && <p className="text-sm text-[var(--muted)]">{section.subtitle}</p>}
-              </div>
-              {openSection === i ? <ChevronUp size={20} className="text-[#1d4ed8]" /> : <ChevronDown size={20} className="text-[var(--muted)]" />}
-            </button>
+          <div key={i} className="bg-[var(--panel)] border border-[var(--line)] rounded-[var(--radius)] shadow-[var(--shadow)] overflow-hidden word-track-section-container">
+            <div className="flex items-center justify-between pr-4">
+              <button 
+                onClick={() => setOpenSection(openSection === i ? null : i)}
+                className="flex-grow px-6 py-5 flex items-center justify-between text-left hover:bg-[var(--accent)] transition-colors"
+              >
+                <div className="flex flex-col">
+                  <h3 className="font-bold text-lg">{section.title}</h3>
+                  {section.subtitle && <p className="text-sm text-[var(--muted)]">{section.subtitle}</p>}
+                </div>
+                {openSection === i ? <ChevronUp size={20} className="text-[#1d4ed8]" /> : <ChevronDown size={20} className="text-[var(--muted)]" />}
+              </button>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrint(i);
+                }}
+                className="p-2 text-[var(--muted)] hover:text-[#1d4ed8] transition-colors no-print"
+                title="Print this script"
+              >
+                <Printer size={20} />
+              </button>
+            </div>
             <AnimatePresence>
               {openSection === i && (
                 <motion.div 
