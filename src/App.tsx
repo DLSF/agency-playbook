@@ -182,9 +182,9 @@ const TemplateCard = ({ title, text, user }: { title: string, text: string, user
   };
 
   return (
-    <div className="bg-[var(--template-bg)] p-6 rounded-xl border border-[var(--line)] flex flex-col h-full">
+    <div className="bg-[var(--template-bg)] p-4 rounded-xl border border-[var(--line)] flex flex-col h-full">
       <h4 className="font-bold text-[#1d4ed8] mb-1">{title}</h4>
-      <div className="flex-grow p-4 bg-[var(--bg)] border border-[var(--line)] rounded-lg text-sm text-[var(--text)] mb-4 leading-relaxed whitespace-pre-wrap">
+      <div className="flex-grow p-3 bg-[var(--bg)] border border-[var(--line)] rounded-lg text-sm text-[var(--text)] mb-3 leading-relaxed whitespace-pre-wrap">
         {displayText}
       </div>
       <button 
@@ -229,9 +229,9 @@ const EmailTemplateCard = ({ title, text, user }: { title: string, text: string,
   };
 
   return (
-    <div className="bg-[var(--template-bg)] p-6 rounded-xl border border-[var(--line)] flex flex-col h-full">
+    <div className="bg-[var(--template-bg)] p-4 rounded-xl border border-[var(--line)] flex flex-col h-full">
       <h4 className="font-bold text-[#1d4ed8] mb-1">{title}</h4>
-      <div className="flex-grow p-4 bg-[var(--bg)] border border-[var(--line)] rounded-lg text-sm text-[var(--text)] mb-4 leading-relaxed whitespace-pre-wrap markdown-body">
+      <div className="flex-grow p-3 bg-[var(--bg)] border border-[var(--line)] rounded-lg text-sm text-[var(--text)] mb-3 leading-relaxed whitespace-pre-wrap markdown-body">
         <Markdown rehypePlugins={[rehypeRaw]}>{displayText}</Markdown>
       </div>
       <div className="grid grid-cols-2 gap-3">
