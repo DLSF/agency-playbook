@@ -163,7 +163,8 @@ const useTokens = (user: UserProfile | null) => {
       .replace(/TIMEDAY/g, getTimeDay())
       .replace(/DAY/g, getDayName())
       .replace(/-CUSTOMER-/g, 'CUSTOMER')
-      .replace(/CUSTOMER/g, 'CUSTOMER');
+      .replace(/CUSTOMER/g, 'CUSTOMER')
+      .replace(/\\n/g, '\n');
   };
 
   return { applyTokens };
@@ -1453,7 +1454,13 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA2 (Aged)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XA2 Text" text="Hello, CUSTOMER. It’s NAME with State Farm! We provided you with a quote some time ago and it looks like you may have a renewal coming up soon and State Farm recently had a price decrease. The timing to get a quote couldn’t be better. Would you mind if I sent one over? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XA2 Email" text="Subject: State Farm Price Decrease and Fresh Quote\n\nHello CUSTOMER, it's NAME w/ State Farm!\n\nWe provided you a quote some time ago and it looks like you may have a renewal coming up soon and State Farm recently had a price decrease.\n\nThe timing to get a quote couldn’t be better. Would you mind if I sent one over?" user={user} />
+              <EmailTemplateCard title="XA2 Email" text={`Subject: State Farm Price Decrease and Fresh Quote
+
+Hello CUSTOMER, it's NAME w/ State Farm!
+
+We provided you a quote some time ago and it looks like you may have a renewal coming up soon and State Farm recently had a price decrease.
+
+The timing to get a quote couldn’t be better. Would you mind if I sent one over?`} user={user} />
             </div>
           </div>
 
@@ -1462,7 +1469,13 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL2 (Lead)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XL2 Text" text="Hello, CUSTOMER. It’s NAME with State Farm, I helped you with a quote when you were shopping for insurance in MONTH. It looks like your renewal is coming up soon and State Farm recently lowered prices. The timing to get a quote couldn’t be better. Would you mind if I sent one over? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XL2 Email" text="Subject: State Farm Price Decrease and Fresh Quote\n\nHello, CUSTOMER.\n\nIt’s NAME with State Farm, I helped you with a quote when you were shopping for insurance in MONTH.\n\nIt looks like your renewal is coming up soon and State Farm has recently lowered prices." user={user} />
+              <EmailTemplateCard title="XL2 Email" text={`Subject: State Farm Price Decrease and Fresh Quote
+
+Hello, CUSTOMER.
+
+It’s NAME with State Farm, I helped you with a quote when you were shopping for insurance in MONTH.
+
+It looks like your renewal is coming up soon and State Farm has recently lowered prices.`} user={user} />
             </div>
           </div>
         </div>
@@ -1478,7 +1491,13 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA3 (Aged)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XA3 Text" text="Good TIMEDAY, CUSTOMER. It’s NAME with State Farm. Got a quick question for you. Have you had an opportunity to get a fresh insurance quote? State Farm recently had a price decrease. Would you mind if I sent over a quote, including the decrease? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XA3 Email" text="Subject: Increased Insurance Rate? Try a State Farm Quote\n\nHello CUSTOMER, it's NAME w/ State Farm!\n\nWe know insurance rates have been crazy for a while now. However, State Farm has had several price decreases on auto and home insurance.\n\nWould you be opposed to looking at a quote including State Farm’s most recent price decrease?" user={user} />
+              <EmailTemplateCard title="XA3 Email" text={`Subject: Increased Insurance Rate? Try a State Farm Quote
+
+Hello CUSTOMER, it's NAME w/ State Farm!
+
+We know insurance rates have been crazy for a while now. However, State Farm has had several price decreases on auto and home insurance.
+
+Would you be opposed to looking at a quote including State Farm’s most recent price decrease?`} user={user} />
             </div>
           </div>
 
@@ -1487,7 +1506,15 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL3 (Lead)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XL3 Text" text="Hey there, CUSTOMER. NAME with State Farm here. Wanted to reach out and ask…Have you received an auto insurance quote to compare with your upcoming renewal? If not, you could be missing out. Especially with State Farm’s recently lowered prices. May I send over a quote and get your feedback? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XL3 Email" text="Subject: Auto Quote Comparison from State Farm\n\nHey there, CUSTOMER.\n\nWanted to reach out and ask…Have you received an auto insurance quote to compare with your upcoming renewal?\n\nIf not, you could be missing out. Especially, with State Farm’s recent rate decrease.\n\nMay I send over a quote and get your feedback?" user={user} />
+              <EmailTemplateCard title="XL3 Email" text={`Subject: Auto Quote Comparison from State Farm
+
+Hey there, CUSTOMER.
+
+Wanted to reach out and ask…Have you received an auto insurance quote to compare with your upcoming renewal?
+
+If not, you could be missing out. Especially, with State Farm’s recent rate decrease.
+
+May I send over a quote and get your feedback?`} user={user} />
             </div>
           </div>
         </div>
@@ -1503,7 +1530,19 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA4 (Aged)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XA4 Text" text="We know insurance rates have been crazy for a while now. However, State Farm has had several price decreases on auto and home insurance. Would you be opposed to looking at a quote including State Farms’ most recent price decrease? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XA4 Email" text="Subject: Quick Question from State Farm\n\nGood afternoon, CUSTOMER.\n\nIt’s NAME with State Farm.\n\nGot a quick question for you.\n\nHave you had an opportunity to get a new insurance quote?\n\nState Farm has had a few rate decreases this year.\n\nWould you mind if I sent over a quote?" user={user} />
+              <EmailTemplateCard title="XA4 Email" text={`Subject: Quick Question from State Farm
+
+Good afternoon, CUSTOMER.
+
+It’s NAME with State Farm.
+
+Got a quick question for you.
+
+Have you had an opportunity to get a new insurance quote?
+
+State Farm has had a few rate decreases this year.
+
+Would you mind if I sent over a quote?`} user={user} />
             </div>
           </div>
 
@@ -1512,7 +1551,15 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL4 (Lead)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XL4 Text" text="Hey CUSTOMER. Did you receive your renewal letter for your auto coverage yet? Looks like your renewal is coming up quickly. I just wanted to send you a quote and see how we compare. Can I email that over to you? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XL4 Email" text="Subject: Upcoming Insurance Renewal?? Get a quote from State Farm today including our recent decrease\n\nHey CUSTOMER. Did you receive your renewal letter for your auto coverage yet?\n\nLooks like your renewal is coming up quick.\n\nI just wanted to send you a quote and see how we compare.\n\nCan I email that over to you?" user={user} />
+              <EmailTemplateCard title="XL4 Email" text={`Subject: Upcoming Insurance Renewal?? Get a quote from State Farm today including our recent decrease
+
+Hey CUSTOMER. Did you receive your renewal letter for your auto coverage yet?
+
+Looks like your renewal is coming up quick.
+
+I just wanted to send you a quote and see how we compare.
+
+Can I email that over to you?`} user={user} />
             </div>
           </div>
         </div>
@@ -1528,7 +1575,13 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA5 (Aged)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XA5 Text" text="Hey CUSTOMER, were you able to find adequate insurance coverage that you were happy to pay for? NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XA5 Email" text="Subject: Are you happy with your current insurance?\n\nHey CUSTOMER,\n\nLooks like your auto renewal may be coming up soon and you deserve to be happy with your insurance company and the coverage and customer service they provide.\n\nWere you able to find adequate insurance coverage that you were happy to pay for?" user={user} />
+              <EmailTemplateCard title="XA5 Email" text={`Subject: Are you happy with your current insurance?
+
+Hey CUSTOMER,
+
+Looks like your auto renewal may be coming up soon and you deserve to be happy with your insurance company and the coverage and customer service they provide.
+
+Were you able to find adequate insurance coverage that you were happy to pay for?`} user={user} />
             </div>
           </div>
 
@@ -1537,7 +1590,13 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL5 (Lead)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XL5 Text" text="Hey CUSTOMER, were you able to find adequate insurance coverage that you were happy to pay for? NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XL5 Email" text="Subject: Are you happy with your current insurance?\n\nHey CUSTOMER,\n\nLooks like your auto renewal may be coming up soon and you deserve to be happy with your insurance company and the coverage and customer service they provide.\n\nWere you able to find adequate insurance coverage that you were happy to pay for?" user={user} />
+              <EmailTemplateCard title="XL5 Email" text={`Subject: Are you happy with your current insurance?
+
+Hey CUSTOMER,
+
+Looks like your auto renewal may be coming up soon and you deserve to be happy with your insurance company and the coverage and customer service they provide.
+
+Were you able to find adequate insurance coverage that you were happy to pay for?`} user={user} />
             </div>
           </div>
         </div>
@@ -1553,7 +1612,13 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA6 (Aged)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XA6 Text" text="CUSTOMER, I know you are busy and just wanted to reach out one last time…When you’re ready to have that discussion about what’s important to you about your insurance, I’m here! I’ll check with you in a few months and see if we can get what you love protected then. Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XA6 Email" text="Subject: Get coverage for what's important to you\n\nCUSTOMER, I know you are busy and just wanted to reach out one last time…\n\nWhen you’re ready to have that discussion about what’s important to you about your insurance, I’m here!\n\nI’ll check with you in a few months and see if we can get what you love protected then." user={user} />
+              <EmailTemplateCard title="XA6 Email" text={`Subject: Get coverage for what's important to you
+
+CUSTOMER, I know you are busy and just wanted to reach out one last time…
+
+When you’re ready to have that discussion about what’s important to you about your insurance, I’m here!
+
+I’ll check with you in a few months and see if we can get what you love protected then.`} user={user} />
             </div>
           </div>
 
@@ -1562,7 +1627,15 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL6 (Lead)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XL6 Text" text="CUSTOMER, I know you are busy and just wanted to reach out one last time…If you decide you’re ready to have that discussion about what’s important to you about your insurance, I’m here! Otherwise, I’ll be back at your next renewal! Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XL6 Email" text="Subject: Getting the Right Coverage for what's important to YOU!\n\nCUSTOMER,\n\nI know you are busy and just wanted to reach out one last time…\n\nIf you decide you’re ready to have that discussion about what’s important to you, I’m here!\n\nOtherwise, I’ll be back at your next renewal!" user={user} />
+              <EmailTemplateCard title="XL6 Email" text={`Subject: Getting the Right Coverage for what's important to YOU!
+
+CUSTOMER,
+
+I know you are busy and just wanted to reach out one last time…
+
+If you decide you’re ready to have that discussion about what’s important to you, I’m here!
+
+Otherwise, I’ll be back at your next renewal!`} user={user} />
             </div>
           </div>
         </div>
@@ -2193,8 +2266,8 @@ const AfterSalesTemplates = ({ user }: { user: UserProfile | null }) => {
 
   const steps = [
     {
-      title: "Service Tasks",
-      desc: "Auto Pay, Steer Clear, and Signatures",
+      title: "Auto Pay",
+      desc: "Auto Pay Set Up Templates",
       content: (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TemplateCard 
@@ -2212,6 +2285,14 @@ const AfterSalesTemplates = ({ user }: { user: UserProfile | null }) => {
             text="Hey CUSTOMER. Just wanted to let you know that your State Farm bill is due on the DATE. We have not yet received the auto pay enrollment agreement. In order to make a payment you will need to call into the office or make the payment online or on the app. Thanks // NAME // State Farm // 281.547.7209"
             user={user}
           />
+        </div>
+      )
+    },
+    {
+      title: "Signatures",
+      desc: "Steer Clear and Signature Documents",
+      content: (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TemplateCard 
             title="Steer Clear Form"
             text="CUSTOMER, hope you are doing well. I emailed you the Steer Clear Form, please have your SON/DAUGHTER CUSTOMER sign the form and return to us asap. This is a huge discount on your auto insurance that you do not want to miss out on. If you did not receive it let me know. Thanks! ~NAME w/ State Farm 281.547.7209"
@@ -2226,7 +2307,7 @@ const AfterSalesTemplates = ({ user }: { user: UserProfile | null }) => {
       )
     },
     {
-      title: "Drive Safe 'N Save Order",
+      title: "Drive Safe n' Save Order",
       desc: "Ordering the beacons",
       content: (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -2254,7 +2335,7 @@ const AfterSalesTemplates = ({ user }: { user: UserProfile | null }) => {
       )
     },
     {
-      title: "Drive Safe 'N Save Set-Up",
+      title: "Drive Safe n' Save Set Up",
       desc: "Setting up the beacons",
       content: (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
