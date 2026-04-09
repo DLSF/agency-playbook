@@ -285,12 +285,6 @@ const EmailTemplateCard = ({ title, text, user }: { title: string, text: string,
       body = plainText;
     }
 
-    // Add user signature if user is logged in
-    if (user) {
-      const signature = `\n\nThanks,\n\n${user.full}\n${user.title}\nDaniel Lottinger State Farm\n21901 State Highway 249, Houston, TX 77070\n${user.phone || '281.547.7209'}\ndaniellottinger.com`;
-      body += signature;
-    }
-
     showToast('Outlook Opening');
     window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
