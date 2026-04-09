@@ -114,23 +114,35 @@ const Layout = ({ children, user, setUser, theme, toggleTheme }: any) => {
   );
 };
 
-const Toast = () => (
-  <div id="toast" className="fixed bottom-8 left-1/2 -translate-x-1/2 invisible opacity-0 transition-all duration-300 bg-[#0f172a] text-white px-6 py-4 rounded-xl border border-[#1d4ed8] font-bold z-50">
-    Copied to clipboard
-  </div>
-);
+const Toast = () => {
+  const [toast, setToast] = useState<{ message: string, visible: boolean }>({ message: '', visible: false });
+
+  useEffect(() => {
+    const handleToast = (e: any) => {
+      setToast({ message: e.detail, visible: true });
+      const timer = setTimeout(() => {
+        setToast(prev => ({ ...prev, visible: false }));
+      }, 3000);
+      return () => clearTimeout(timer);
+    };
+    window.addEventListener('app-toast', handleToast);
+    return () => window.removeEventListener('app-toast', handleToast);
+  }, []);
+
+  return (
+    <div 
+      className={`fixed bottom-8 left-1/2 -translate-x-1/2 transition-all duration-300 bg-[#0f172a] text-white px-6 py-4 rounded-xl border border-[#1d4ed8] font-bold z-[9999] shadow-2xl flex items-center gap-3 ${
+        toast.visible ? 'visible opacity-100 translate-y-0' : 'invisible opacity-0 translate-y-4'
+      }`}
+    >
+      <CheckCircle2 size={18} className="text-green-400" />
+      {toast.message}
+    </div>
+  );
+};
 
 const showToast = (message: string) => {
-  const toast = document.getElementById('toast');
-  if (toast) {
-    toast.textContent = message;
-    toast.classList.remove('invisible', 'opacity-0');
-    toast.classList.add('visible', 'opacity-100');
-    setTimeout(() => {
-      toast.classList.add('invisible', 'opacity-0');
-      toast.classList.remove('visible', 'opacity-100');
-    }, 3000);
-  }
+  window.dispatchEvent(new CustomEvent('app-toast', { detail: message }));
 };
 
 const ProtectedRoute = ({ children, user, requiredUser }: { children: React.ReactNode, user: UserProfile | null, requiredUser?: string }) => {
@@ -178,8 +190,32 @@ const TemplateCard = ({ title, text, user }: { title: string, text: string, user
   const displayText = applyTokens(text);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(displayText);
-    showToast('Template copied to clipboard!');
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(displayText).then(() => {
+          showToast('Template copied to clipboard!');
+        }).catch(() => {
+          // Fallback if promise fails
+          const textArea = document.createElement("textarea");
+          textArea.value = displayText;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          showToast('Template copied to clipboard!');
+        });
+      } else {
+        throw new Error('Clipboard API not available');
+      }
+    } catch (err) {
+      const textArea = document.createElement("textarea");
+      textArea.value = displayText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('Template copied to clipboard!');
+    }
   };
 
   return (
@@ -208,8 +244,31 @@ const EmailTemplateCard = ({ title, text, user }: { title: string, text: string,
   const handleCopy = () => {
     // Strip HTML tags for plain text copy
     const plainText = displayText.replace(/<[^>]*>/g, '');
-    navigator.clipboard.writeText(plainText);
-    showToast('Template copied to clipboard!');
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(plainText).then(() => {
+          showToast('Template copied to clipboard!');
+        }).catch(() => {
+          const textArea = document.createElement("textarea");
+          textArea.value = plainText;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          showToast('Template copied to clipboard!');
+        });
+      } else {
+        throw new Error('Clipboard API not available');
+      }
+    } catch (err) {
+      const textArea = document.createElement("textarea");
+      textArea.value = plainText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('Template copied to clipboard!');
+    }
   };
 
   const handleOpenOutlook = () => {
@@ -225,6 +284,13 @@ const EmailTemplateCard = ({ title, text, user }: { title: string, text: string,
     } else {
       body = plainText;
     }
+
+    // Add user signature if user is logged in
+    if (user) {
+      const signature = `\n\nThanks,\n\n${user.full}\n${user.title}\nDaniel Lottinger State Farm\n21901 State Highway 249, Houston, TX 77070\n${user.phone || '281.547.7209'}\ndaniellottinger.com`;
+      body += signature;
+    }
+
     showToast('Outlook Opening');
     window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
@@ -477,8 +543,31 @@ const ServiceDocumentation = () => {
   const [openSection, setOpenSection] = useState<number | null>(null);
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    showToast('Notes format copied!');
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Notes format copied!');
+        }).catch(() => {
+          const textArea = document.createElement("textarea");
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          showToast('Notes format copied!');
+        });
+      } else {
+        throw new Error('Clipboard API not available');
+      }
+    } catch (err) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('Notes format copied!');
+    }
   };
 
   return (
