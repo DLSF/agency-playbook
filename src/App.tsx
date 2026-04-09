@@ -1900,7 +1900,7 @@ const FollowUpTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <TemplateCard 
           title="F1 Text"
-          text="Hey CUSTOMER. Thank you for the opportunity to quote your auto insurance. Let me know what you think and if you have any questions. Thanks // NAME // State Farm // 281.547.7209"
+          text="Hey CUSTOMER. Good speaking with you earlier. Just wanted to let you know I emailed over your quotes to EMAIL. Let me know what you think and if you have any questions. Thanks // NAME // State Farm // 281.547.7209"
           user={user}
         />
       )
