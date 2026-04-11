@@ -1126,23 +1126,25 @@ const InternetLeads = ({ user }: { user: UserProfile | null }) => {
     {
       title: "Step 2: Day 1 Sequence",
       desc: "Intro texts sent 3-5 minutes apart",
+      headerAction: (
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsSFLeads(!isSFLeads);
+          }}
+          className="px-4 py-2 bg-[var(--accent)] text-[var(--brand-dark)] rounded-full text-xs font-bold border border-white hover:bg-[var(--line)] transition-colors flex items-center gap-2 whitespace-nowrap"
+        >
+          {isSFLeads ? 'Standard Leads' : 'State Farm Leads'}
+        </button>
+      ),
       content: (
         <div className="space-y-6">
-          <div className="flex justify-end">
-            <button 
-              onClick={() => setIsSFLeads(!isSFLeads)}
-              className="px-4 py-2 bg-[var(--accent)] text-[var(--brand-dark)] rounded-full text-xs font-bold hover:bg-[var(--line)] transition-colors flex items-center gap-2"
-            >
-              Switch to {isSFLeads ? 'Standard Leads' : 'State Farm Leads'}
-            </button>
-          </div>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {!isSFLeads ? (
               <>
                 <TemplateCard 
                   title="Text 1: Greeting"
-                  text={`Good TIMEDAY CUSTOMER! It's NAME with State Farm. \nWe received your request for a auto insurance quote. \nI'm working on that for you now—I'll have those numbers over shortly.\nThanks // NAME // State Farm // 281.547.7209`}
+                  text={`Good TIMEDAY CUSTOMER! Happy DAY. It's NAME with State Farm. \nWe received your request for an auto insurance quote. \nI'm working on the quote now and will have it over to you shortly.\nThanks // NAME // State Farm // 281.547.7209`}
                   user={user}
                 />
                 <TemplateCard 
@@ -1155,7 +1157,7 @@ const InternetLeads = ({ user }: { user: UserProfile | null }) => {
               <>
                 <TemplateCard 
                   title="SF Leads Text 1: Greeting"
-                  text="Good morning, CUSTOMER. Happy DAY. It’s NAME, w/ State Farm, we received your request from our website for a AUTO/HOME quote. Let me take a look at everything and I will get back to you in a few…"
+                  text={`Good TIMEDAY, CUSTOMER. Happy DAY. It’s Mark, w/ State Farm,\nwe received your request from our website for a AUTO/HOME quote.\nLet me take a look at everything and I will get back to you in a few.\n\nThanks // NAME // State Farm // 281.547.7209`}
                   user={user}
                 />
                 <TemplateCard 
@@ -1309,18 +1311,25 @@ const InternetLeads = ({ user }: { user: UserProfile | null }) => {
       </section>
 
       <div className="space-y-4">
-        {steps.map((step, i) => (
+        {steps.map((step: any, i) => (
           <div key={i} className="bg-[var(--panel)] border border-[var(--line)] rounded-[var(--radius)] shadow-[var(--shadow)] overflow-hidden">
-            <button 
-              onClick={() => setOpenStep(openStep === i ? null : i)}
-              className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-[var(--accent)] transition-colors"
-            >
-              <div>
-                <h3 className="font-bold text-lg">{step.title}</h3>
-                <p className="text-sm text-[var(--muted)]">{step.desc}</p>
-              </div>
-              {openStep === i ? <ChevronUp size={20} className="text-[#1d4ed8]" /> : <ChevronDown size={20} className="text-[var(--muted)]" />}
-            </button>
+            <div className="flex items-center justify-between hover:bg-[var(--accent)] transition-colors">
+              <button 
+                onClick={() => setOpenStep(openStep === i ? null : i)}
+                className="flex-grow px-6 py-5 flex items-center justify-between text-left"
+              >
+                <div>
+                  <h3 className="font-bold text-lg">{step.title}</h3>
+                  <p className="text-sm text-[var(--muted)]">{step.desc}</p>
+                </div>
+                {openStep === i ? <ChevronUp size={20} className="text-[#1d4ed8]" /> : <ChevronDown size={20} className="text-[var(--muted)]" />}
+              </button>
+              {step.headerAction && (
+                <div className="pr-6">
+                  {step.headerAction}
+                </div>
+              )}
+            </div>
             <AnimatePresence>
               {openStep === i && (
                 <motion.div 
@@ -3231,18 +3240,21 @@ const Feedback = ({ user }: { user: UserProfile }) => {
       return;
     }
 
+    const selectedPage = PLAYBOOK_PAGES.find(p => p.name === page);
+    const pageUrl = selectedPage ? selectedPage.url : '/';
+
     const subject = `Playbook Feedback: ${type} from ${user.full}`;
     const body = `FEEDBACK REPORT\n` +
                  `--------------------------\n` +
                  `From: ${user.full} (${user.title})\n` +
                  `Type: ${type}\n` +
-                 `Page Reference: ${page}\n\n` +
+                 `Page Reference: ${page} (${pageUrl})\n\n` +
                  `DETAILS:\n${message}\n\n` +
                  `--------------------------\n` +
                  `Sent via Agency Playbook Feedback Portal`;
 
     showToast('Outlook Opening');
-    window.location.href = `mailto:mark@daniellottinger.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:marklusk82@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   return (
