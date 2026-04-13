@@ -2337,15 +2337,13 @@ const ClosingTemplates = ({ user }: { user: UserProfile | null }) => {
                 text="It’s NAME with State Farm, hope everything is going great. I wanted to ask a quick favor, would you mind letting Google know about your experience with me and State Farm? Please include my NAME and how I was able to help you with your insurance. \*/ https://www.daniellottinger.com/reviews \*/"
                 user={user}
               />
-              <EmailTemplateCard 
+              <TemplateCard 
                 title="Dec Page - Applicant Copy"
-                subject="Your Homeowner's Declarations Page"
                 text="CUSTOMER,\n\nHere is a copy of your homeowner's declarations page for your records."
                 user={user}
               />
-              <EmailTemplateCard 
+              <TemplateCard 
                 title="Dec Page - Mortgagee Copy"
-                subject="Homeowner's Declarations Page for Mortgagee"
                 text="CUSTOMER,\n\nHere is a copy of the homeowner's declarations page for the mortgage company if they ever ask for it."
                 user={user}
               />
