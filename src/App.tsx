@@ -185,69 +185,18 @@ const useTokens = (user: UserProfile | null) => {
 /**
  * Reusable card for text templates with token replacement and copy functionality.
  */
-const TemplateCard = ({ title, text, user }: { title: string, text: string, user: UserProfile | null, key?: React.Key }) => {
+const TemplateCard = ({ title, subject, text, user, isMarkdown = false }: { title: string, subject?: string, text: string, user: UserProfile | null, key?: React.Key, isMarkdown?: boolean }) => {
   const { applyTokens } = useTokens(user);
   const displayText = applyTokens(text);
+  const displaySubject = subject ? applyTokens(subject) : '';
 
   const handleCopy = () => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(displayText).then(() => {
-          showToast('Template copied to clipboard!');
-        }).catch(() => {
-          // Fallback if promise fails
-          const textArea = document.createElement("textarea");
-          textArea.value = displayText;
-          document.body.appendChild(textArea);
-          textArea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textArea);
-          showToast('Template copied to clipboard!');
-        });
-      } else {
-        throw new Error('Clipboard API not available');
-      }
-    } catch (err) {
-      const textArea = document.createElement("textarea");
-      textArea.value = displayText;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      showToast('Template copied to clipboard!');
-    }
-  };
-
-  return (
-    <div className="bg-[var(--template-bg)] p-4 rounded-xl border border-[var(--line)] flex flex-col h-full">
-      <h4 className="font-bold text-[#1d4ed8] mb-1">{title}</h4>
-      <div className="flex-grow p-3 bg-[var(--bg)] border border-[var(--line)] rounded-lg text-sm text-[var(--text)] mb-3 leading-relaxed whitespace-pre-wrap">
-        {displayText}
-      </div>
-      <button 
-        onClick={handleCopy}
-        className="w-full bg-[#1e3a8a] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2 text-xs"
-      >
-        <Copy size={14} /> Copy Text
-      </button>
-    </div>
-  );
-};
-
-/**
- * Reusable card for email templates with token replacement, copy, and mailto functionality.
- */
-const EmailTemplateCard = ({ title, text, user }: { title: string, text: string, user: UserProfile | null, key?: React.Key }) => {
-  const { applyTokens } = useTokens(user);
-  const displayText = applyTokens(text);
-
-  const handleCopy = () => {
-    // Strip HTML tags for plain text copy
-    const plainText = displayText.replace(/<[^>]*>/g, '');
+    // Strip HTML tags for plain text copy if it's markdown
+    const plainText = isMarkdown ? displayText.replace(/<[^>]*>/g, '') : displayText;
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(plainText).then(() => {
-          showToast('Template copied to clipboard!');
+          showToast('Body copied to clipboard!');
         }).catch(() => {
           const textArea = document.createElement("textarea");
           textArea.value = plainText;
@@ -255,10 +204,8 @@ const EmailTemplateCard = ({ title, text, user }: { title: string, text: string,
           textArea.select();
           document.execCommand('copy');
           document.body.removeChild(textArea);
-          showToast('Template copied to clipboard!');
+          showToast('Body copied to clipboard!');
         });
-      } else {
-        throw new Error('Clipboard API not available');
       }
     } catch (err) {
       const textArea = document.createElement("textarea");
@@ -267,48 +214,137 @@ const EmailTemplateCard = ({ title, text, user }: { title: string, text: string,
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      showToast('Template copied to clipboard!');
+      showToast('Body copied to clipboard!');
+    }
+  };
+
+  const handleCopySubject = () => {
+    if (!displaySubject) return;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(displaySubject).then(() => {
+          showToast('Subject copied to clipboard!');
+        }).catch(() => {
+          const textArea = document.createElement("textarea");
+          textArea.value = displaySubject;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          showToast('Subject copied to clipboard!');
+        });
+      }
+    } catch (err) {
+      const textArea = document.createElement("textarea");
+      textArea.value = displaySubject;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('Subject copied to clipboard!');
     }
   };
 
   const handleOpenOutlook = () => {
-    // Strip HTML tags for mailto link
-    const plainText = displayText.replace(/<[^>]*>/g, '');
-    const lines = plainText.split('\n');
-    let subject = '';
-    let body = '';
-
-    if (lines.length > 0 && lines[0].toLowerCase().startsWith('subject:')) {
-      subject = lines[0].replace(/subject:/i, '').trim();
-      body = lines.slice(1).join('\n').trimStart();
-    } else {
-      body = plainText;
-    }
-
+    if (!displaySubject) return;
+    const plainBody = isMarkdown ? displayText.replace(/<[^>]*>/g, '') : displayText;
     showToast('Outlook Opening');
-    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:?subject=${encodeURIComponent(displaySubject)}&body=${encodeURIComponent(plainBody)}`;
   };
 
   return (
     <div className="bg-[var(--template-bg)] p-4 rounded-xl border border-[var(--line)] flex flex-col h-full">
       <h4 className="font-bold text-[#1d4ed8] mb-1">{title}</h4>
-      <div className="flex-grow p-3 bg-[var(--bg)] border border-[var(--line)] rounded-lg text-sm text-[var(--text)] mb-3 leading-relaxed whitespace-pre-wrap markdown-body">
-        <Markdown rehypePlugins={[rehypeRaw]}>{displayText}</Markdown>
+      
+      {subject && (
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)]">Subject</span>
+            <button onClick={handleCopySubject} className="text-[#1d4ed8] hover:underline text-[10px] font-bold">Copy Subject</button>
+          </div>
+          <div className="p-2 bg-[var(--bg)] border border-[var(--line)] rounded-lg text-xs text-[var(--text)] font-medium italic">
+            {displaySubject}
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted)]">Body</span>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex-grow p-3 bg-[var(--bg)] border border-[var(--line)] rounded-lg text-sm text-[var(--text)] mb-3 leading-relaxed whitespace-pre-wrap">
+        {isMarkdown ? (
+          <div className="markdown-body">
+            <Markdown rehypePlugins={[rehypeRaw]}>{displayText}</Markdown>
+          </div>
+        ) : displayText}
+      </div>
+      <div className={`grid ${subject ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
         <button 
           onClick={handleCopy}
-          className="bg-[#1e3a8a] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2 text-xs"
+          className="w-full bg-[#1e3a8a] text-white py-3 rounded-lg font-bold hover:bg-[#1d4ed8] transition-all flex items-center justify-center gap-2 text-xs"
         >
-          <Copy size={14} /> Copy Text
+          <Copy size={14} /> Copy Body
         </button>
-        <button 
-          onClick={handleOpenOutlook}
-          className="bg-[var(--panel)] text-[var(--brand)] border-2 border-[var(--brand)] py-3 rounded-lg font-bold hover:bg-[var(--accent)] transition-all flex items-center justify-center gap-2 text-xs"
-        >
-          <Mail size={14} /> Open Outlook
-        </button>
+        {subject && (
+          <button 
+            onClick={handleOpenOutlook}
+            className="w-full bg-white text-[#1e3a8a] border border-[#1e3a8a] py-3 rounded-lg font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2 text-xs"
+          >
+            <Mail size={14} /> Outlook
+          </button>
+        )}
       </div>
+    </div>
+  );
+};
+
+/**
+ * Reusable card for email templates with token replacement, copy, and mailto functionality.
+ */
+const EmailTemplateCard = ({ title, subject: explicitSubject, text, user }: { title: string, subject?: string, text: string, user: UserProfile | null, key?: React.Key }) => {
+  // Parse subject from text if it starts with "Subject:" and no explicit subject is provided
+  const lines = text.split('\n');
+  let subject = explicitSubject || '';
+  let body = '';
+
+  if (!explicitSubject && lines.length > 0 && lines[0].toLowerCase().startsWith('subject:')) {
+    subject = lines[0].replace(/subject:/i, '').trim();
+    body = lines.slice(1).join('\n').trimStart();
+  } else {
+    body = text;
+  }
+
+  return <TemplateCard title={title} subject={subject} text={body} user={user} isMarkdown={true} />;
+};
+
+/**
+ * A nested accordion component for grouping templates within a main accordion step.
+ */
+const NestedAccordion = ({ title, children }: { title: string, children: React.ReactNode }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="border border-[var(--line)] rounded-[var(--radius)] overflow-hidden mb-4 shadow-sm">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-6 py-4 flex items-center justify-between text-left bg-[var(--bg)] hover:bg-[var(--accent)] transition-colors group"
+      >
+        <span className="font-bold text-sm uppercase tracking-wider text-[var(--muted)] group-hover:text-[#1d4ed8] transition-colors">{title}</span>
+        {isOpen ? <ChevronUp size={18} className="text-[#1d4ed8]" /> : <ChevronDown size={18} className="text-[var(--muted)]" />}
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="p-6 border-t border-[var(--line)] bg-[var(--panel)]">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -654,22 +690,22 @@ const ServiceTemplates = ({ user }: { user: UserProfile | null }) => {
         {
           name: "Past Due Reminder",
           text: "Hi CUSTOMER. This is a friendly reminder that your State Farm payment of XXXX is past due. Please call or text us at 281-547-7209 or 24/7 at 800-440-0998. You may also pay online at https://www.statefarm.com/customer-care/insurance-bill-pay. Please note this must be received prior to XXXX to maintain continuous coverage. ~NAME State Farm",
-          isEmail: true
+          isEmail: false
         },
         {
           name: "Declined Payment",
           text: "Hi CUSTOMER. Your payment of XXXX was declined and your account is past due. Please call or text us at 281-547-7209 or 24/7 @ 800-440-0998. You may also pay online at https://www.statefarm.com/customer-care/insurance-bill-pay. Must be received prior to XXXX to remain in good standing. ~NAME State Farm",
-          isEmail: true
+          isEmail: false
         },
         {
           name: "Last Day to Pay (Urgent)",
           text: "Hi CUSTOMER. Friendly reminder your State Farm payment of XXXX is past due and YOUR POLICY IS SCHEDULED TO CANCEL AT MIDNIGHT FOR NONPAYMENT. Please call 281-547-7209 or pay online immediately. MUST BE RECEIVED BEFORE MIDNIGHT TONIGHT to maintain coverage. ~NAME State Farm",
-          isEmail: true
+          isEmail: false
         },
         {
           name: "Inactive Policy Alert",
           text: "Hi CUSTOMER. Your State Farm policy is currently INACTIVE AND YOU HAVE NO COVERAGE effective XXXX. In order to reinstate, we need a payment of XXXX or your policy will terminate. Contact us at 281-547-7209 to reinstate. ~NAME State Farm",
-          isEmail: true
+          isEmail: false
         }
       ]
     },
@@ -680,12 +716,12 @@ const ServiceTemplates = ({ user }: { user: UserProfile | null }) => {
         {
           name: "DSS Setup (Initial)",
           text: "Hi CUSTOMER. Our records show your Bluetooth beacon was delivered. To keep your discount, complete setup in the app. Text SETUP to 42407 to download or call 888-559-1922 for help. Watch: http://st8.fm/mobilesetup. ~ NAME State Farm",
-          isEmail: true
+          isEmail: false
         },
         {
           name: "DSS Not Transmitting",
           text: "Hi CUSTOMER. Your State Farm Drive Safe & Save™ beacon is not transmitting data on your XXXX. Please log in to the app for messages or visit st8.fm/dsstroubleshoot. Your discount may be impacted if action is not taken. If beacon is not working, let us know! ~NAME State Farm",
-          isEmail: true
+          isEmail: false
         }
       ]
     },
@@ -695,12 +731,14 @@ const ServiceTemplates = ({ user }: { user: UserProfile | null }) => {
       items: [
         {
           name: "Totaled Vehicle Email",
-          text: "Subject: Update regarding your Total Loss Claim\n\nGood TIMEDAY CUSTOMER, this is NAME State Farm regarding your claim on the YYYY MMM MMMM. Claims has deemed the vehicle a total loss. I hope all involved are ok! We need to know if there are plans to replace the vehicle to determine what is best for your policy. Call 281-547-7209 with any questions.",
+          subject: "Update regarding your Total Loss Claim",
+          text: "Good TIMEDAY CUSTOMER, this is NAME State Farm regarding your claim on the YYYY MMM MMMM. Claims has deemed the vehicle a total loss. I hope all involved are ok! We need to know if there are plans to replace the vehicle to determine what is best for your policy. Call 281-547-7209 with any questions.",
           isEmail: true
         },
         {
           name: "Driving Exposure Email",
-          text: "Subject: Action Required: Household Driver Information\n\nHi CUSTOMER, XXXXX (DOB XXXXXX) has been identified as a possible driving exposure in your household. Does XXXXX live with you and/or drive your vehicle? If so, they need to be added to the policy. Please provide relationship, marital status, and a copy of their license.",
+          subject: "Action Required: Household Driver Information",
+          text: "Hi CUSTOMER, XXXXX (DOB XXXXXX) has been identified as a possible driving exposure in your household. Does XXXXX live with you and/or drive your vehicle? If so, they need to be added to the policy. Please provide relationship, marital status, and a copy of their license.",
           isEmail: true
         }
       ]
@@ -711,7 +749,8 @@ const ServiceTemplates = ({ user }: { user: UserProfile | null }) => {
       items: [
         {
           name: "Mod Renewal (E-Sig Email)",
-          text: "Subject: Important: E-Signature needed for your State Farm Renewal\n\nGood Morning CUSTOMER, State Farm sent an e-signature packet for your upcoming renewal. We are moving to a new modernized system. The downside is all old documents need to be replaced with new ones reflecting new policy numbers. Please complete at your earliest convenience to ensure renewal. Call 281-547-7209 with questions!",
+          subject: "Important: E-Signature needed for your State Farm Renewal",
+          text: "Good Morning CUSTOMER, State Farm sent an e-signature packet for your upcoming renewal. We are moving to a new modernized system. The downside is all old documents need to be replaced with new ones reflecting new policy numbers. Please complete at your earliest convenience to ensure renewal. Call 281-547-7209 with questions!",
           isEmail: true
         },
         {
@@ -779,7 +818,13 @@ const ServiceTemplates = ({ user }: { user: UserProfile | null }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                       {section.items.map((item, idx) => (
                         item.isEmail ? (
-                          <EmailTemplateCard key={idx} title={item.name} text={item.text} user={user} />
+                          <EmailTemplateCard 
+                            key={idx} 
+                            title={item.name} 
+                            subject={item.subject}
+                            text={item.text} 
+                            user={user} 
+                          />
                         ) : (
                           <TemplateCard key={idx} title={item.name} text={item.text} user={user} />
                         )
@@ -1170,7 +1215,8 @@ const InternetLeads = ({ user }: { user: UserProfile | null }) => {
             <div className="md:col-span-2">
               <EmailTemplateCard 
                 title="Missing Info Email"
-                text={`Subject: State Farm - Quote Request Received\n\nHello CUSTOMER,\n\nWe received your request for a quote.\n\nHowever, it looks like we need a little bit more info to make sure we get you an accurate quote.\n\nWhat would be a good time to give you a call?`}
+                subject="State Farm - Quote Request Received"
+                text={`Hello CUSTOMER,\n\nWe received your request for a quote.\n\nHowever, it looks like we need a little bit more info to make sure we get you an accurate quote.\n\nWhat would be a good time to give you a call?`}
                 user={user}
               />
             </div>
@@ -1190,7 +1236,8 @@ const InternetLeads = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="Quote Email"
-            text={`Subject: State Farm - Quote Request Received - Initial Quote Included\n\nGood News, CUSTOMER! \nWe received your request for an auto insurance quote and your initial quote is ready!\n\nPending validation of your info, you could be covered for as little as $XX /mo with State Farm!\n\nI have attached a copy of the quote for your review.\nLet me know a good time to connect with you and review the quote.`}
+            subject="State Farm - Quote Request Received - Initial Quote Included"
+            text={`Good News, CUSTOMER! \nWe received your request for an auto insurance quote and your initial quote is ready!\n\nPending validation of your info, you could be covered for as little as $XX /mo with State Farm!\n\nI have attached a copy of the quote for your review.\nLet me know a good time to connect with you and review the quote.`}
             user={user}
           />
         </div>
@@ -1238,7 +1285,8 @@ const InternetLeads = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="Step 06 Email 2"
-            text={`Subject: Initial quote from State Farm\n\nGood afternoon, CUSTOMER.\n\nI was just looking for some feedback on the quote I sent over a few days ago.\n\nI have not heard back and not sure if you received it.\n\nWould you like me to resend it?`}
+            subject="Initial quote from State Farm"
+            text={`Good afternoon, CUSTOMER.\n\nI was just looking for some feedback on the quote I sent over a few days ago.\n\nI have not heard back and not sure if you received it.\n\nWould you like me to resend it?`}
             user={user}
           />
         </div>
@@ -1267,7 +1315,8 @@ const InternetLeads = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="Step 08 Email 3"
-            text={`Subject: Even if you don’t go with State Farm, make sure you have adequate coverage.\n\nGood afternoon, CUSTOMER.\n\nIf you are paying more than $XX for auto insurance.\nWe could save you money every month.\n\nWhat would be a good time to give you a call to discuss?`}
+            subject="Even if you don’t go with State Farm, make sure you have adequate coverage."
+            text={`Good afternoon, CUSTOMER.\n\nIf you are paying more than $XX for auto insurance.\nWe could save you money every month.\n\nWhat would be a good time to give you a call to discuss?`}
             user={user}
           />
         </div>
@@ -1387,12 +1436,14 @@ const WinbackTemplates = ({ user }: { user: UserProfile | null }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <EmailTemplateCard 
               title="WX2 Email"
-              text={`Subject: Fresh Quote for CUSTOMER to come back to State Farm\n\nHello CUSTOMER, it's NAME w/ State Farm.\n\nLooks like you had State Farm coverage that ended back in MONTH YEAR.\n\nWe want to let you know that State Farm recently had a price decrease, and maybe your renewal is coming up soon.\nSo, the timing to get a quote couldn’t be better.\n\nWould you mind if I sent one over?`}
+              subject="Fresh Quote for CUSTOMER to come back to State Farm"
+              text={`Hello CUSTOMER, it's NAME w/ State Farm.\n\nLooks like you had State Farm coverage that ended back in MONTH YEAR.\n\nWe want to let you know that State Farm recently had a price decrease, and maybe your renewal is coming up soon.\nSo, the timing to get a quote couldn’t be better.\n\nWould you mind if I sent one over?`}
               user={user}
             />
             <EmailTemplateCard 
               title="WX2-A Email"
-              text={`Subject: Fresh Quote for CUSTOMER to come back to State Farm\n\nHello CUSTOMER, it's NAME w/ State Farm.\n\nLooks like you had State Farm coverage that ended back in MONTH YEAR.\n\nWe want to let you know that State Farm recently had a price decrease, and maybe your renewal is coming up soon.\nSo, the timing to get a quote couldn’t be better.\n\nWould you mind if I sent one over?`}
+              subject="Fresh Quote for CUSTOMER to come back to State Farm"
+              text={`Hello CUSTOMER, it's NAME w/ State Farm.\n\nLooks like you had State Farm coverage that ended back in MONTH YEAR.\n\nWe want to let you know that State Farm recently had a price decrease, and maybe your renewal is coming up soon.\nSo, the timing to get a quote couldn’t be better.\n\nWould you mind if I sent one over?`}
               user={user}
             />
           </div>
@@ -1411,7 +1462,8 @@ const WinbackTemplates = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="WX3 Email"
-            text={`Subject: CUSTOMER, State Farm has a fresh quote for you\n\nGood afternoon, CUSTOMER. It’s NAME with State Farm.\nGot a quick question for you.\n\nHave you had an opportunity to think about coming back over to State Farm?\nWould you mind if I sent over a quote, including our recent price decrease?`}
+            subject="CUSTOMER, State Farm has a fresh quote for you"
+            text={`Good afternoon, CUSTOMER. It’s NAME with State Farm.\nGot a quick question for you.\n\nHave you had an opportunity to think about coming back over to State Farm?\nWould you mind if I sent over a quote, including our recent price decrease?`}
             user={user}
           />
         </div>
@@ -1429,7 +1481,8 @@ const WinbackTemplates = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="WX4 Email"
-            text={`Subject: CUSTOMER, it's crazy out there. Do you trust what is important is protected?\n\nHey CUSTOMER, we know insurance rates have been crazy recently.\n\nEspecially with State Farm’s recent rate decrease.\nWe would love the opportunity to bring you back to State Farm.\n\nReply with “Let’s Go” and we’ll get a quote ready for you.`}
+            subject="CUSTOMER, it's crazy out there. Do you trust what is important is protected?"
+            text={`Hey CUSTOMER, we know insurance rates have been crazy recently.\n\nEspecially with State Farm’s recent rate decrease.\nWe would love the opportunity to bring you back to State Farm.\n\nReply with “Let’s Go” and we’ll get a quote ready for you.`}
             user={user}
           />
         </div>
@@ -1447,7 +1500,8 @@ const WinbackTemplates = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="WX5 Email"
-            text={`Subject: CUSTOMER Would you be opposed to a better price and coverage? State Farm can help.\n\nHey CUSTOMER, it's NAME w/ State Farm.\nSwitching insurance for a better rate is completely understandable.\n\nWould you be opposed to switching back to State Farm if we can beat your current rate?\nLet’s get you a fresh quote and see what we can do.`}
+            subject="CUSTOMER Would you be opposed to a better price and coverage? State Farm can help."
+            text={`Hey CUSTOMER, it's NAME w/ State Farm.\nSwitching insurance for a better rate is completely understandable.\n\nWould you be opposed to switching back to State Farm if we can beat your current rate?\nLet’s get you a fresh quote and see what we can do.`}
             user={user}
           />
         </div>
@@ -1465,7 +1519,8 @@ const WinbackTemplates = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="WX6 Email"
-            text={`Subject: Bye, for now NAME\n\nCUSTOMER, maybe now is not a good time to look at your insurance.\nI understand. Let me know if you decide to take a look.\nOtherwise, I will try again in a few months.`}
+            subject="Bye, for now NAME"
+            text={`CUSTOMER, maybe now is not a good time to look at your insurance.\nI understand. Let me know if you decide to take a look.\nOtherwise, I will try again in a few months.`}
             user={user}
           />
         </div>
@@ -1546,13 +1601,16 @@ const XDateTemplates = ({ user }: { user: UserProfile | null }) => {
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA2 (Aged)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XA2 Text" text="Hello, CUSTOMER. It’s NAME with State Farm! We provided you with a quote some time ago and it looks like you may have a renewal coming up soon and State Farm recently had a price decrease. The timing to get a quote couldn’t be better. Would you mind if I sent one over? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XA2 Email" text={`Subject: State Farm Price Decrease and Fresh Quote
-
-Hello CUSTOMER, it's NAME w/ State Farm!
+              <EmailTemplateCard 
+                title="XA2 Email" 
+                subject="State Farm Price Decrease and Fresh Quote"
+                text={`Hello CUSTOMER, it's NAME w/ State Farm!
 
 We provided you a quote some time ago and it looks like you may have a renewal coming up soon and State Farm recently had a price decrease.
 
-The timing to get a quote couldn’t be better. Would you mind if I sent one over?`} user={user} />
+The timing to get a quote couldn’t be better. Would you mind if I sent one over?`} 
+                user={user} 
+              />
             </div>
           </div>
 
@@ -1561,13 +1619,16 @@ The timing to get a quote couldn’t be better. Would you mind if I sent one ove
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL2 (Lead)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XL2 Text" text="Hello, CUSTOMER. It’s NAME with State Farm, I helped you with a quote when you were shopping for insurance in MONTH. It looks like your renewal is coming up soon and State Farm recently lowered prices. The timing to get a quote couldn’t be better. Would you mind if I sent one over? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XL2 Email" text={`Subject: State Farm Price Decrease and Fresh Quote
-
-Hello, CUSTOMER.
+              <EmailTemplateCard 
+                title="XL2 Email" 
+                subject="State Farm Price Decrease and Fresh Quote"
+                text={`Hello, CUSTOMER.
 
 It’s NAME with State Farm, I helped you with a quote when you were shopping for insurance in MONTH.
 
-It looks like your renewal is coming up soon and State Farm has recently lowered prices.`} user={user} />
+It looks like your renewal is coming up soon and State Farm has recently lowered prices.`} 
+                user={user} 
+              />
             </div>
           </div>
         </div>
@@ -1583,13 +1644,16 @@ It looks like your renewal is coming up soon and State Farm has recently lowered
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA3 (Aged)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XA3 Text" text="Good TIMEDAY, CUSTOMER. It’s NAME with State Farm. Got a quick question for you. Have you had an opportunity to get a fresh insurance quote? State Farm recently had a price decrease. Would you mind if I sent over a quote, including the decrease? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XA3 Email" text={`Subject: Increased Insurance Rate? Try a State Farm Quote
-
-Hello CUSTOMER, it's NAME w/ State Farm!
+              <EmailTemplateCard 
+                title="XA3 Email" 
+                subject="Increased Insurance Rate? Try a State Farm Quote"
+                text={`Hello CUSTOMER, it's NAME w/ State Farm!
 
 We know insurance rates have been crazy for a while now. However, State Farm has had several price decreases on auto and home insurance.
 
-Would you be opposed to looking at a quote including State Farm’s most recent price decrease?`} user={user} />
+Would you be opposed to looking at a quote including State Farm’s most recent price decrease?`} 
+                user={user} 
+              />
             </div>
           </div>
 
@@ -1598,15 +1662,18 @@ Would you be opposed to looking at a quote including State Farm’s most recent 
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL3 (Lead)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XL3 Text" text="Hey there, CUSTOMER. NAME with State Farm here. Wanted to reach out and ask…Have you received an auto insurance quote to compare with your upcoming renewal? If not, you could be missing out. Especially with State Farm’s recently lowered prices. May I send over a quote and get your feedback? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XL3 Email" text={`Subject: Auto Quote Comparison from State Farm
-
-Hey there, CUSTOMER.
+              <EmailTemplateCard 
+                title="XL3 Email" 
+                subject="Auto Quote Comparison from State Farm"
+                text={`Hey there, CUSTOMER.
 
 Wanted to reach out and ask…Have you received an auto insurance quote to compare with your upcoming renewal?
 
 If not, you could be missing out. Especially, with State Farm’s recent rate decrease.
 
-May I send over a quote and get your feedback?`} user={user} />
+May I send over a quote and get your feedback?`} 
+                user={user} 
+              />
             </div>
           </div>
         </div>
@@ -1622,9 +1689,10 @@ May I send over a quote and get your feedback?`} user={user} />
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA4 (Aged)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XA4 Text" text="We know insurance rates have been crazy for a while now. However, State Farm has had several price decreases on auto and home insurance. Would you be opposed to looking at a quote including State Farms’ most recent price decrease? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XA4 Email" text={`Subject: Quick Question from State Farm
-
-Good afternoon, CUSTOMER.
+              <EmailTemplateCard 
+                title="XA4 Email" 
+                subject="Quick Question from State Farm"
+                text={`Good afternoon, CUSTOMER.
 
 It’s NAME with State Farm.
 
@@ -1634,7 +1702,9 @@ Have you had an opportunity to get a new insurance quote?
 
 State Farm has had a few rate decreases this year.
 
-Would you mind if I sent over a quote?`} user={user} />
+Would you mind if I sent over a quote?`} 
+                user={user} 
+              />
             </div>
           </div>
 
@@ -1643,15 +1713,18 @@ Would you mind if I sent over a quote?`} user={user} />
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL4 (Lead)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XL4 Text" text="Hey CUSTOMER. Did you receive your renewal letter for your auto coverage yet? Looks like your renewal is coming up quickly. I just wanted to send you a quote and see how we compare. Can I email that over to you? Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XL4 Email" text={`Subject: Upcoming Insurance Renewal?? Get a quote from State Farm today including our recent decrease
-
-Hey CUSTOMER. Did you receive your renewal letter for your auto coverage yet?
+              <EmailTemplateCard 
+                title="XL4 Email" 
+                subject="Upcoming Insurance Renewal?? Get a quote from State Farm today including our recent decrease"
+                text={`Hey CUSTOMER. Did you receive your renewal letter for your auto coverage yet?
 
 Looks like your renewal is coming up quick.
 
 I just wanted to send you a quote and see how we compare.
 
-Can I email that over to you?`} user={user} />
+Can I email that over to you?`} 
+                user={user} 
+              />
             </div>
           </div>
         </div>
@@ -1667,13 +1740,16 @@ Can I email that over to you?`} user={user} />
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA5 (Aged)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XA5 Text" text="Hey CUSTOMER, were you able to find adequate insurance coverage that you were happy to pay for? NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XA5 Email" text={`Subject: Are you happy with your current insurance?
-
-Hey CUSTOMER,
+              <EmailTemplateCard 
+                title="XA5 Email" 
+                subject="Are you happy with your current insurance?"
+                text={`Hey CUSTOMER,
 
 Looks like your auto renewal may be coming up soon and you deserve to be happy with your insurance company and the coverage and customer service they provide.
 
-Were you able to find adequate insurance coverage that you were happy to pay for?`} user={user} />
+Were you able to find adequate insurance coverage that you were happy to pay for?`} 
+                user={user} 
+              />
             </div>
           </div>
 
@@ -1682,13 +1758,16 @@ Were you able to find adequate insurance coverage that you were happy to pay for
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL5 (Lead)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XL5 Text" text="Hey CUSTOMER, were you able to find adequate insurance coverage that you were happy to pay for? NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XL5 Email" text={`Subject: Are you happy with your current insurance?
-
-Hey CUSTOMER,
+              <EmailTemplateCard 
+                title="XL5 Email" 
+                subject="Are you happy with your current insurance?"
+                text={`Hey CUSTOMER,
 
 Looks like your auto renewal may be coming up soon and you deserve to be happy with your insurance company and the coverage and customer service they provide.
 
-Were you able to find adequate insurance coverage that you were happy to pay for?`} user={user} />
+Were you able to find adequate insurance coverage that you were happy to pay for?`} 
+                user={user} 
+              />
             </div>
           </div>
         </div>
@@ -1704,13 +1783,16 @@ Were you able to find adequate insurance coverage that you were happy to pay for
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XA6 (Aged)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XA6 Text" text="CUSTOMER, I know you are busy and just wanted to reach out one last time…When you’re ready to have that discussion about what’s important to you about your insurance, I’m here! I’ll check with you in a few months and see if we can get what you love protected then. Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XA6 Email" text={`Subject: Get coverage for what's important to you
-
-CUSTOMER, I know you are busy and just wanted to reach out one last time…
+              <EmailTemplateCard 
+                title="XA6 Email" 
+                subject="Get coverage for what's important to you"
+                text={`CUSTOMER, I know you are busy and just wanted to reach out one last time…
 
 When you’re ready to have that discussion about what’s important to you about your insurance, I’m here!
 
-I’ll check with you in a few months and see if we can get what you love protected then.`} user={user} />
+I’ll check with you in a few months and see if we can get what you love protected then.`} 
+                user={user} 
+              />
             </div>
           </div>
 
@@ -1719,15 +1801,18 @@ I’ll check with you in a few months and see if we can get what you love protec
             <h5 className="font-bold text-sm text-[var(--muted)] uppercase tracking-wider">XL6 (Lead)</h5>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <TemplateCard title="XL6 Text" text="CUSTOMER, I know you are busy and just wanted to reach out one last time…If you decide you’re ready to have that discussion about what’s important to you about your insurance, I’m here! Otherwise, I’ll be back at your next renewal! Thanks // NAME // State Farm // 281.547.7209" user={user} />
-              <EmailTemplateCard title="XL6 Email" text={`Subject: Getting the Right Coverage for what's important to YOU!
-
-CUSTOMER,
+              <EmailTemplateCard 
+                title="XL6 Email" 
+                subject="Getting the Right Coverage for what's important to YOU!"
+                text={`CUSTOMER,
 
 I know you are busy and just wanted to reach out one last time…
 
 If you decide you’re ready to have that discussion about what’s important to you, I’m here!
 
-Otherwise, I’ll be back at your next renewal!`} user={user} />
+Otherwise, I’ll be back at your next renewal!`} 
+                user={user} 
+              />
             </div>
           </div>
         </div>
@@ -1794,7 +1879,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Quote – Auto + Home + Plup"
-          text={`Subject: State Farm Auto and Home Bundle Quotes For CUSTOMER\n\nHey CUSTOMER, it was good chatting with you earlier.\nThanks for giving me the opportunity to quote your Auto and Home insurance.\n\nIf you have any questions or want more information reach out anytime. I am here to help.\nI worked up 2 options for your home and auto coverage.\nBoth options have the same deductibles – and can be adjusted if necessary.\n<u>Auto</u> – $XXX\n<u>Home</u> – 1% Policy and 2% Wind and Hail\n\nThe dwelling coverage is at $XXX, and the basis for deductibles, with an additional 20% for Increased Dwelling covering the home for $XXX.\nBoth the dwelling and the deductibles can be increased or decreased based on your preferences.\n\nOption 1 is probably what you are used too. Pretty standard coverages for both home and auto and should be similar to what you have now.\n\nThe second option is much more robust coverage for $XX more per month than Option 1 and includes what is known as an Umbrella.\nI included some reading material on the Umbrella coverage and details for more info on how this coverage works.\n\nThe biggest potential loss clients face is loss due to lawsuit.\nIf you happened to be in an auto accident and the other driver was injured and decides to sue, an Umbrella policy would protect you from this lawsuit.\n\nThis basically doubles your auto liability coverage and adds an additional 1 million dollars of liability coverage that follows you everywhere.\nOption 1 offers 1 million in liability as well, but only provides coverage when on your property. This coverage does not extend to you when you are on vacation or at the grocery store, like the Umbrella does.\nThis is reduced to $100,000 in Option 2, as the Umbrella covers this.   \n\nI also included a few suggested additional optional coverages below and can be added to either option. These are not included in the quotes but can be added if you want them.\n_______________________________________________________________________\n\n<b>Option 1 – Auto and Home</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX\n_______________________________________________________________________\n\n<b>Option 2 – Auto, Home and Umbrella</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nUmbrella - $XX per month / $XXX per year\nMonthly $XXX\n_______________________________________________________________________\n\n<b>Optional Coverages</b> (per month / per year)\nIf you want to know more about these let me know.\n\n<u>Back up of Sewer and Drain</u> – plus $XX/$XXX\nIf water from rain or flooding were to back up into the drains inside the home.\n\n<u>ID Theft</u> – plus $2.08/$25\nCovers costs of recovering, restoring, and monitoring your credit and identity if it were stolen in a cyber-attack.\nHas a separate deductible of $500.\n\n<u>Home Systems Protection</u> – plus $8.25/$99\nCovers the breakdown of water heaters, air conditioners, furnaces, electrical panels and permanently installed appliances.\nOperates similar to a warranty and has a separate deductible of $500.\n\n<u>Seepage and Leakage</u> – plus $XX/$XXX\nDamage from broken or busted pipes are already covered. Covers the damage caused by water from a leaky pipe.\n* <u>Dwelling Foundation</u> – plus $XX/$XX\n  Loss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling as a result of a covered Seepage and Leakage loss.`}
+          subject="State Farm Auto and Home Bundle Quotes For CUSTOMER"
+          text={`Hey CUSTOMER, it was good chatting with you earlier.\nThanks for giving me the opportunity to quote your Auto and Home insurance.\n\nIf you have any questions or want more information reach out anytime. I am here to help.\nI worked up 2 options for your home and auto coverage.\nBoth options have the same deductibles – and can be adjusted if necessary.\n<u>Auto</u> – $XXX\n<u>Home</u> – 1% Policy and 2% Wind and Hail\n\nThe dwelling coverage is at $XXX, and the basis for deductibles, with an additional 20% for Increased Dwelling covering the home for $XXX.\nBoth the dwelling and the deductibles can be increased or decreased based on your preferences.\n\nOption 1 is probably what you are used too. Pretty standard coverages for both home and auto and should be similar to what you have now.\n\nThe second option is much more robust coverage for $XX more per month than Option 1 and includes what is known as an Umbrella.\nI included some reading material on the Umbrella coverage and details for more info on how this coverage works.\n\nThe biggest potential loss clients face is loss due to lawsuit.\nIf you happened to be in an auto accident and the other driver was injured and decides to sue, an Umbrella policy would protect you from this lawsuit.\n\nThis basically doubles your auto liability coverage and adds an additional 1 million dollars of liability coverage that follows you everywhere.\nOption 1 offers 1 million in liability as well, but only provides coverage when on your property. This coverage does not extend to you when you are on vacation or at the grocery store, like the Umbrella does.\nThis is reduced to $100,000 in Option 2, as the Umbrella covers this.   \n\nI also included a few suggested additional optional coverages below and can be added to either option. These are not included in the quotes but can be added if you want them.\n_______________________________________________________________________\n\n<b>Option 1 – Auto and Home</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX\n_______________________________________________________________________\n\n<b>Option 2 – Auto, Home and Umbrella</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nUmbrella - $XX per month / $XXX per year\nMonthly $XXX\n_______________________________________________________________________\n\n<b>Optional Coverages</b> (per month / per year)\nIf you want to know more about these let me know.\n\n<u>Back up of Sewer and Drain</u> – plus $XX/$XXX\nIf water from rain or flooding were to back up into the drains inside the home.\n\n<u>ID Theft</u> – plus $2.08/$25\nCovers costs of recovering, restoring, and monitoring your credit and identity if it were stolen in a cyber-attack.\nHas a separate deductible of $500.\n\n<u>Home Systems Protection</u> – plus $8.25/$99\nCovers the breakdown of water heaters, air conditioners, furnaces, electrical panels and permanently installed appliances.\nOperates similar to a warranty and has a separate deductible of $500.\n\n<u>Seepage and Leakage</u> – plus $XX/$XXX\nDamage from broken or busted pipes are already covered. Covers the damage caused by water from a leaky pipe.\n* <u>Dwelling Foundation</u> – plus $XX/$XX\n  Loss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling as a result of a covered Seepage and Leakage loss.`}
           user={user}
         />
       )
@@ -1805,7 +1891,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Quote – Auto + Home"
-          text={`Subject: State Farm Auto and Home Bundle Quotes For CUSTOMER\n\nHey CUSTOMER, it was good chatting with you earlier.\nThanks for giving me the opportunity to quote your Auto and Home insurance.\n\nI worked up the auto + home bundle quote for you. \n\nFirst on the auto –\nWe matched the coverages to what you currently have with COMPANY.\n\nNext on the home –\nThe dwelling and deductibles can be adjusted based on your preferences. \n\nI also included a few suggested additional optional coverages below. \nThese are not included in the quotes but can be added if you want them.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nLet me know how this compares to your current rates\n_______________________________________________________________________\n\n<b>Option 1 – Auto Only</b> – (Delete if not needed)\nAuto - $XXX per month / $XXXX per 6 months\n_______________________________________________________________________\n\n<b>Option 2 – Auto and Home Bundle</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nUmbrella - $XX per month / $XXX per year\nMonthly $XXX\n_______________________________________________________________________\n\n<b>Optional Coverages</b> (per month / per year)\nIf you want to know more about these let me know.\n\n<u>Back up of Sewer and Drain</u> – plus $XX/$XXX\nIf water from rain or flooding were to back up into the drains inside the home.\n\n<u>ID Theft</u> – plus $2.08/$25\nCovers costs of recovering, restoring, and monitoring your credit and identity if it were stolen in a cyber-attack.\nHas a separate deductible of $500.\n\n<u>Home Systems Protection</u> – plus $8.25/$99\nCovers the breakdown of water heaters, air conditioners, furnaces, electrical panels and permanently installed appliances.\nOperates similar to a warranty and has a separate deductible of $500.\n\n<u>Seepage and Leakage</u> – plus $XX/$XXX\nDamage from broken or busted pipes are already covered. Covers the damage caused by water from a leaky pipe.\n* <u>Dwelling Foundation</u> – plus $XX/$XX\n  Loss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling as a result of a covered Seepage and Leakage loss.`}
+          subject="State Farm Auto and Home Bundle Quotes For CUSTOMER"
+          text={`Hey CUSTOMER, it was good chatting with you earlier.\nThanks for giving me the opportunity to quote your Auto and Home insurance.\n\nI worked up the auto + home bundle quote for you. \n\nFirst on the auto –\nWe matched the coverages to what you currently have with COMPANY.\n\nNext on the home –\nThe dwelling and deductibles can be adjusted based on your preferences. \n\nI also included a few suggested additional optional coverages below. \nThese are not included in the quotes but can be added if you want them.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nLet me know how this compares to your current rates\n_______________________________________________________________________\n\n<b>Option 1 – Auto Only</b> – (Delete if not needed)\nAuto - $XXX per month / $XXXX per 6 months\n_______________________________________________________________________\n\n<b>Option 2 – Auto and Home Bundle</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nUmbrella - $XX per month / $XXX per year\nMonthly $XXX\n_______________________________________________________________________\n\n<b>Optional Coverages</b> (per month / per year)\nIf you want to know more about these let me know.\n\n<u>Back up of Sewer and Drain</u> – plus $XX/$XXX\nIf water from rain or flooding were to back up into the drains inside the home.\n\n<u>ID Theft</u> – plus $2.08/$25\nCovers costs of recovering, restoring, and monitoring your credit and identity if it were stolen in a cyber-attack.\nHas a separate deductible of $500.\n\n<u>Home Systems Protection</u> – plus $8.25/$99\nCovers the breakdown of water heaters, air conditioners, furnaces, electrical panels and permanently installed appliances.\nOperates similar to a warranty and has a separate deductible of $500.\n\n<u>Seepage and Leakage</u> – plus $XX/$XXX\nDamage from broken or busted pipes are already covered. Covers the damage caused by water from a leaky pipe.\n* <u>Dwelling Foundation</u> – plus $XX/$XX\n  Loss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling as a result of a covered Seepage and Leakage loss.`}
           user={user}
         />
       )
@@ -1816,7 +1903,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Quote – Auto + Dover Bay Home"
-          text={`Subject: State Farm Auto and Home Bundle Quotes For CUSTOMER\n\nHey CUSTOMER, it was good chatting with you earlier.\nThanks for giving me the opportunity to quote your Auto and Home insurance.\n\nI worked up the auto + home bundle quote for you. \n\nFirst on the auto –\nWe matched the coverages to what you currently have with COMPANY.\n\nNext on the home –\nThe dwelling coverage is at $XXX, and the basis for deductibles, which we have set for the lowest possible which is 1% for the policy and 5% for hurricane. \n\nWe provide two quote options to choose from, the main difference is the roof coverage, dwelling coverage, personal property and loss of use is reduced on one, this is page 2 of the Home quote.\n\nThe higher coverage option, page 1 of the Home quote, includes replacement cost coverage for the roof and includes an additional 20% for Increased Dwelling covering the home for $XXX more for a total of $XXX , additional to increases in personal property and loss of use. \n\nThe deductibles can be increased based on your preferences. \n\n<b>Auto and Home Quote 1</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX\n\n<b>Auto and Home Quote 2</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX`}
+          subject="State Farm Auto and Home Bundle Quotes For CUSTOMER"
+          text={`Hey CUSTOMER, it was good chatting with you earlier.\nThanks for giving me the opportunity to quote your Auto and Home insurance.\n\nI worked up the auto + home bundle quote for you. \n\nFirst on the auto –\nWe matched the coverages to what you currently have with COMPANY.\n\nNext on the home –\nThe dwelling coverage is at $XXX, and the basis for deductibles, which we have set for the lowest possible which is 1% for the policy and 5% for hurricane. \n\nWe provide two quote options to choose from, the main difference is the roof coverage, dwelling coverage, personal property and loss of use is reduced on one, this is page 2 of the Home quote.\n\nThe higher coverage option, page 1 of the Home quote, includes replacement cost coverage for the roof and includes an additional 20% for Increased Dwelling covering the home for $XXX more for a total of $XXX , additional to increases in personal property and loss of use. \n\nThe deductibles can be increased based on your preferences. \n\n<b>Auto and Home Quote 1</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX\n\n<b>Auto and Home Quote 2</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX`}
           user={user}
         />
       )
@@ -1827,7 +1915,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Bundle - Adding Home"
-          text={`Subject: State Farm Home Bundle Quote for CUSTOMER\n\nHey CUSTOMER, it was good chatting with you earlier.\n\nI worked up the bundle quote to add your home to your State Farm account.\n\nYour home quote is attached, if it looks good, we would be able to add the auto + home bundle discount and would save you $XX per month on your auto, your new auto rate is below.\n\nI also included a few suggested additional optional coverages below. \nThese are not included in the quotes but can be added if you want them.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nLet me know how this compares to your current rates\n_______________________________________________________________________\n\n<b>Auto and Home</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX\n_______________________________________________________________________\n\n<b>Optional Home Coverages</b> (per month / per year)\nIf you want to know more about these let me know.\n\n<u>Back up of Sewer and Drain</u> – plus $XX/$XXX\nIf water from rain or flooding were to back up into the drains inside the home.\n\n<u>Dwelling Foundation</u> – plus $XX/$XX\nLoss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling.\n\n<u>ID Theft</u> – plus $2.08/$25\nCovers costs of recovering, restoring, and monitoring your credit and identity if it were stolen in a cyber-attack.\nHas a separate deductible of $500.\n\n<u>Home Systems Protection</u> – plus $8.25/$99\nCovers the breakdown of water heaters, air conditioners, furnaces, electrical panels and permanently installed appliances.\nOperates similar to a warranty and has a separate deductible of $500.\n\n<u>Seepage and Leakage</u> – plus $XX/$XXX\nDamage from broken or busted pipes are already covered. Covers the damage caused by water from a leaky pipe.\n* <u>Dwelling Foundation</u> – plus $XX/$XX\n  Loss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling as a result of a covered Seepage and Leakage loss.`}
+          subject="State Farm Home Bundle Quote for CUSTOMER"
+          text={`Hey CUSTOMER, it was good chatting with you earlier.\n\nI worked up the bundle quote to add your home to your State Farm account.\n\nYour home quote is attached, if it looks good, we would be able to add the auto + home bundle discount and would save you $XX per month on your auto, your new auto rate is below.\n\nI also included a few suggested additional optional coverages below. \nThese are not included in the quotes but can be added if you want them.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nLet me know how this compares to your current rates\n_______________________________________________________________________\n\n<b>Auto and Home</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX\n_______________________________________________________________________\n\n<b>Optional Home Coverages</b> (per month / per year)\nIf you want to know more about these let me know.\n\n<u>Back up of Sewer and Drain</u> – plus $XX/$XXX\nIf water from rain or flooding were to back up into the drains inside the home.\n\n<u>Dwelling Foundation</u> – plus $XX/$XX\nLoss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling.\n\n<u>ID Theft</u> – plus $2.08/$25\nCovers costs of recovering, restoring, and monitoring your credit and identity if it were stolen in a cyber-attack.\nHas a separate deductible of $500.\n\n<u>Home Systems Protection</u> – plus $8.25/$99\nCovers the breakdown of water heaters, air conditioners, furnaces, electrical panels and permanently installed appliances.\nOperates similar to a warranty and has a separate deductible of $500.\n\n<u>Seepage and Leakage</u> – plus $XX/$XXX\nDamage from broken or busted pipes are already covered. Covers the damage caused by water from a leaky pipe.\n* <u>Dwelling Foundation</u> – plus $XX/$XX\n  Loss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling as a result of a covered Seepage and Leakage loss.`}
           user={user}
         />
       )
@@ -1838,7 +1927,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Bundle - Adding Dover Bay Home"
-          text={`Subject: State Farm Home Bundle Quote for CUSTOMER\n\nHey CUSTOMER, it was good chatting with you earlier.\n\nI worked up the bundle quote to add your home to your State Farm account.\n\nYour home quote is attached, if it looks good, we would be able to add the auto + home bundle discount and would save you $XX per month on your auto, your new auto rate is below.\n\nThe dwelling coverage is at $XXX, and the basis for deductibles, which we have set for the lowest possible which is 1% for the policy and 5% for hurricane. \n\nWe provide two quote options to choose from, the main difference is the roof coverage, dwelling coverage, personal property and loss of use is reduced on one, this is page 2 of the Home quote.\n\nThe higher coverage option, page 1 of the Home quote, includes replacement cost coverage for the roof and includes an additional 20% for Increased Dwelling covering the home for $XXX more for a total of $XXX , additional to increases in personal property and loss of use. \n\nThe deductibles can be increased based on your preferences. \n\n<b>Auto and Home Quote 1</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX\n\n<b>Auto and Home Quote 2</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX`}
+          subject="State Farm Home Bundle Quote for CUSTOMER"
+          text={`Hey CUSTOMER, it was good chatting with you earlier.\n\nI worked up the bundle quote to add your home to your State Farm account.\n\nYour home quote is attached, if it looks good, we would be able to add the auto + home bundle discount and would save you $XX per month on your auto, your new auto rate is below.\n\nThe dwelling coverage is at $XXX, and the basis for deductibles, which we have set for the lowest possible which is 1% for the policy and 5% for hurricane. \n\nWe provide two quote options to choose from, the main difference is the roof coverage, dwelling coverage, personal property and loss of use is reduced on one, this is page 2 of the Home quote.\n\nThe higher coverage option, page 1 of the Home quote, includes replacement cost coverage for the roof and includes an additional 20% for Increased Dwelling covering the home for $XXX more for a total of $XXX , additional to increases in personal property and loss of use. \n\nThe deductibles can be increased based on your preferences. \n\n<b>Auto and Home Quote 1</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX\n\n<b>Auto and Home Quote 2</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX`}
           user={user}
         />
       )
@@ -1849,7 +1939,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Bundle - Adding Auto"
-          text={`Subject: State Farm Auto Bundle Quote for CUSTOMER\n\nI worked up the bundle quote to add your auto to your State Farm account.\n\nWe have matched the coverage on your current auto policy. \nWith your coverages at XXX/XXX and a deductible of $XXX\n\nYour auto quote is attached, if it looks good, we would be able to add the auto + home bundle discount and would save you $XX per month on your home, your new home rate is below.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nLet me know how this compares to your current rates.\n\n_______________________________________________________________________\n\n<b>Auto and Home</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX`}
+          subject="State Farm Auto Bundle Quote for CUSTOMER"
+          text={`I worked up the bundle quote to add your auto to your State Farm account.\n\nWe have matched the coverage on your current auto policy. \nWith your coverages at XXX/XXX and a deductible of $XXX\n\nYour auto quote is attached, if it looks good, we would be able to add the auto + home bundle discount and would save you $XX per month on your home, your new home rate is below.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nLet me know how this compares to your current rates.\n\n_______________________________________________________________________\n\n<b>Auto and Home</b>\nAuto - $XXX per month / $XXXX per 6 months\nHome - $XXX per month / $XXXX per year\nMonthly $XXX`}
           user={user}
         />
       )
@@ -1860,7 +1951,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Cold Call Quote – Auto + Home Pivot"
-          text={`Subject: State Farm Auto Quote for CUSTOMER\n\nHello CUSTOMER,\n\nIt was good speaking with you earlier.\nThanks for giving me the opportunity to quote your auto insurance.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nYour auto quote is attached, if it looks good, we can quote your home as well and see if the bundle makes sense. \n\nLet me know how this compares to your current coverage.`}
+          subject="State Farm Auto Quote for CUSTOMER"
+          text={`Hello CUSTOMER,\n\nIt was good speaking with you earlier.\nThanks for giving me the opportunity to quote your auto insurance.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nYour auto quote is attached, if it looks good, we can quote your home as well and see if the bundle makes sense. \n\nLet me know how this compares to your current coverage.`}
           user={user}
         />
       )
@@ -1871,7 +1963,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Cold Call Quote – Auto Only"
-          text={`Subject: State Farm Auto Quote for CUSTOMER\n\nHello CUSTOMER,\n\nIt was good speaking with you earlier.\nThanks for giving me the opportunity to quote your auto insurance.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nYour auto quote is attached, let me know how this compares to your current coverage.`}
+          subject="State Farm Auto Quote for CUSTOMER"
+          text={`Hello CUSTOMER,\n\nIt was good speaking with you earlier.\nThanks for giving me the opportunity to quote your auto insurance.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nYour auto quote is attached, let me know how this compares to your current coverage.`}
           user={user}
         />
       )
@@ -1882,7 +1975,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Cold Call Quote – Auto Winback"
-          text={`Subject: State Farm Auto Quote for CUSTOMER\n\nHello CUSTOMER,\n\nIt was good speaking with you earlier.\nThanks for giving me the opportunity to quote your Auto insurance.\n\nHopefully, we can bring you back to State Farm, so we can provide you with a great experience.\n\nYour auto quote is attached, if it looks good, we can quote your homeowners as well and see if the bundle makes sense. \n\nLet me know how this compares to your current coverage.`}
+          subject="State Farm Auto Quote for CUSTOMER"
+          text={`Hello CUSTOMER,\n\nIt was good speaking with you earlier.\nThanks for giving me the opportunity to quote your Auto insurance.\n\nHopefully, we can bring you back to State Farm, so we can provide you with a great experience.\n\nYour auto quote is attached, if it looks good, we can quote your homeowners as well and see if the bundle makes sense. \n\nLet me know how this compares to your current coverage.`}
           user={user}
         />
       )
@@ -1893,7 +1987,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Cold Call Quote – Home Only"
-          text={`Subject: State Farm Home Quote for CUSTOMER\n\nHello NAME,\n\nIt was good speaking with you earlier.\nThanks for giving me the opportunity to quote your Home insurance.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nYour home quote is attached, let me know how this compares to your current coverage and if you have any questions. \n\nI also included a few suggested additional optional coverages below. \nThese are not included in the quotes but can be added if you want them.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nLet me know how this compares to your current coverage.\n_______________________________________________________________________\n\nOptional Home Coverages (per month / per year)\nIf you want to know more about these let me know.\n\n<u>Back up of Sewer and Drain</u> – plus $XX/$XXX\nIf water from rain or flooding were to back up into the drains inside the home.\n\n<u>Dwelling Foundation</u> – plus $XX/$XX\nLoss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling.\n\n<u>ID Theft</u> – plus $2.08/$25\nCovers costs of recovering, restoring, and monitoring your credit and identity if it were stolen in a cyber-attack.\nHas a separate deductible of $500.\n\n<u>Home Systems Protection</u> – plus $8.25/$99\nCovers the breakdown of water heaters, air conditioners, furnaces, electrical panels and permanently installed appliances.\nOperates similar to a warranty and has a separate deductible of $500.\n\n<u>Seepage and Leakage</u> – plus $XX/$XXX\nDamage from broken or busted pipes are already covered. Covers the damage caused by water from a leaky pipe.\n* <u>Dwelling Foundation</u> – plus $XX/$XX\n  Loss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling as a result of a covered Seepage and Leakage loss.`}
+          subject="State Farm Home Quote for CUSTOMER"
+          text={`Hello NAME,\n\nIt was good speaking with you earlier.\nThanks for giving me the opportunity to quote your Home insurance.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nYour home quote is attached, let me know how this compares to your current coverage and if you have any questions. \n\nI also included a few suggested additional optional coverages below. \nThese are not included in the quotes but can be added if you want them.\n\nHopefully, we can save you a few dollars a year, which will allow me to provide you with a great experience. \n\nLet me know how this compares to your current coverage.\n_______________________________________________________________________\n\nOptional Home Coverages (per month / per year)\nIf you want to know more about these let me know.\n\n<u>Back up of Sewer and Drain</u> – plus $XX/$XXX\nIf water from rain or flooding were to back up into the drains inside the home.\n\n<u>Dwelling Foundation</u> – plus $XX/$XX\nLoss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling.\n\n<u>ID Theft</u> – plus $2.08/$25\nCovers costs of recovering, restoring, and monitoring your credit and identity if it were stolen in a cyber-attack.\nHas a separate deductible of $500.\n\n<u>Home Systems Protection</u> – plus $8.25/$99\nCovers the breakdown of water heaters, air conditioners, furnaces, electrical panels and permanently installed appliances.\nOperates similar to a warranty and has a separate deductible of $500.\n\n<u>Seepage and Leakage</u> – plus $XX/$XXX\nDamage from broken or busted pipes are already covered. Covers the damage caused by water from a leaky pipe.\n* <u>Dwelling Foundation</u> – plus $XX/$XX\n  Loss from settling, cracking, shrinking, enlarging, or expanding of the foundation, floor slab, or footings that support the dwelling as a result of a covered Seepage and Leakage loss.`}
           user={user}
         />
       )
@@ -1904,7 +1999,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Cold Call Quote – High"
-          text={`Subject: State Farm Quotes\n\nNAME,\n\nThanks for the opportunity to quote your insurance.\n\nUnfortunately, we are going to be higher for auto than your current coverage.\n\nLooks like your next renewal is in MONTH, I will check back with you then and see if we can get you a good quote.`}
+          subject="State Farm Quotes"
+          text={`NAME,\n\nThanks for the opportunity to quote your insurance.\n\nUnfortunately, we are going to be higher for auto than your current coverage.\n\nLooks like your next renewal is in MONTH, I will check back with you then and see if we can get you a good quote.`}
           user={user}
         />
       )
@@ -1915,7 +2011,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Dover Bay Service - Policy Renewal Decrease"
-          text={`Subject: State Farm Dover Bay Homeowner's Renewal\n\nHello CUSTOMER, this is Mark with your State Farm office. \nYour home is up for renewal again on MONTH DAY. \n\nI have good news this time, we are seeing a decrease of $XXX for the year on the upcoming policy.\n\nA copy of the quote is attached. Just let me know if you would like me to process this renewal for you.`}
+          subject="State Farm Dover Bay Homeowner's Renewal"
+          text={`Hello CUSTOMER, this is Mark with your State Farm office. \nYour home is up for renewal again on MONTH DAY. \n\nI have good news this time, we are seeing a decrease of $XXX for the year on the upcoming policy.\n\nA copy of the quote is attached. Just let me know if you would like me to process this renewal for you.`}
           user={user}
         />
       )
@@ -1926,7 +2023,8 @@ const QuoteEmailTemplates = ({ user }: { user: UserProfile | null }) => {
       content: (
         <EmailTemplateCard 
           title="Dover Bay Service - Policy Renewal Increase"
-          text={`Subject: State Farm Dover Bay Homeowner's Renewal\n\nHello CUSTOMER, this is Mark with your State Farm office.\nYour home is up for renewal again on MONTH DAY. \n\nA copy of the quote is attached. Just let me know if you would like me to process this renewal for you.`}
+          subject="State Farm Dover Bay Homeowner's Renewal"
+          text={`Hello CUSTOMER, this is Mark with your State Farm office.\nYour home is up for renewal again on MONTH DAY. \n\nA copy of the quote is attached. Just let me know if you would like me to process this renewal for you.`}
           user={user}
         />
       )
@@ -2009,7 +2107,8 @@ const FollowUpTemplates = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="F2 Email"
-            text={`Subject: State Farm Quotes\n\nGood afternoon, CUSTOMER.\n\nQuick question, I just wanted to make sure.\n\nDid you get the quotes I sent over?`}
+            subject="State Farm Quotes"
+            text={`Good afternoon, CUSTOMER.\n\nQuick question, I just wanted to make sure.\n\nDid you get the quotes I sent over?`}
             user={user}
           />
         </div>
@@ -2027,7 +2126,8 @@ const FollowUpTemplates = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="F3 Email"
-            text={`Subject: State Farm Quote\n\nHello CUSTOMER,\n\nJust wanted to reach out and see if you had any questions about the coverage or quotes, we discussed the other day.`}
+            subject="State Farm Quote"
+            text={`Hello CUSTOMER,\n\nJust wanted to reach out and see if you had any questions about the coverage or quotes, we discussed the other day.`}
             user={user}
           />
         </div>
@@ -2045,7 +2145,8 @@ const FollowUpTemplates = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="F4 Email"
-            text={`Subject: State Farm Quotes\n\nHello CUSTOMER,\n\nHow did you want to move forward with the quotes we sent over?`}
+            subject="State Farm Quotes"
+            text={`Hello CUSTOMER,\n\nHow did you want to move forward with the quotes we sent over?`}
             user={user}
           />
         </div>
@@ -2063,7 +2164,8 @@ const FollowUpTemplates = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="F5 Email"
-            text={`Subject: State Farm Quotes\n\nHey CUSTOMER.\n\nI know you’re busy and don’t want to bug.\n\nJust wanted to see if you had the opportunity to review the quotes and if you had any feedback.\n\nLet me know how you would like to proceed.`}
+            subject="State Farm Quotes"
+            text={`Hey CUSTOMER.\n\nI know you’re busy and don’t want to bug.\n\nJust wanted to see if you had the opportunity to review the quotes and if you had any feedback.\n\nLet me know how you would like to proceed.`}
             user={user}
           />
         </div>
@@ -2081,7 +2183,8 @@ const FollowUpTemplates = ({ user }: { user: UserProfile | null }) => {
           />
           <EmailTemplateCard 
             title="F6 Email"
-            text={`Subject: Future Quote from State Farm\n\nGood afternoon, CUSTOMER.\n\nTo keep from annoying you with endless texts and calls, I will reach out in a few MONTHWEEK when we get closer to your next renewal in MONTH.\n\nI have your quote for $XXX saved, if at any point you want to get started call or text anytime.`}
+            subject="Future Quote from State Farm"
+            text={`Good afternoon, CUSTOMER.\n\nTo keep from annoying you with endless texts and calls, I will reach out in a few MONTHWEEK when we get closer to your next renewal in MONTH.\n\nI have your quote for $XXX saved, if at any point you want to get started call or text anytime.`}
             user={user}
           />
         </div>
@@ -2236,11 +2339,13 @@ const ClosingTemplates = ({ user }: { user: UserProfile | null }) => {
               />
               <EmailTemplateCard 
                 title="Dec Page - Applicant Copy"
+                subject="Your Homeowner's Declarations Page"
                 text="CUSTOMER,\n\nHere is a copy of your homeowner's declarations page for your records."
                 user={user}
               />
               <EmailTemplateCard 
                 title="Dec Page - Mortgagee Copy"
+                subject="Homeowner's Declarations Page for Mortgagee"
                 text="CUSTOMER,\n\nHere is a copy of the homeowner's declarations page for the mortgage company if they ever ask for it."
                 user={user}
               />
@@ -2399,30 +2504,194 @@ const AfterSalesTemplates = ({ user }: { user: UserProfile | null }) => {
       )
     },
     {
-      title: "Drive Safe n' Save Order",
-      desc: "Ordering the beacons",
+      title: "Welcome Emails",
+      desc: "Initial onboarding and welcome messages",
       content: (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TemplateCard 
-            title="Notification 1 – Day After"
-            text="Hello CUSTOMER, just wanted to say thanks for choosing State Farm and our office. I also wanted to remind you about the Drive Safe and Save devices. I sent you an email to set up a log in for the app, after you download and get logged into the app, click the Safe and Save icon at the bottom of the app. Then scroll down a little and you will see “Your Vehicles” click enroll and follow the prompts to order the Drive Safe and Save beacons. If you have any questions or issues let me know. Thanks // NAME // State Farm // 281.547.7209"
+            title="Welcome Email SF Bound"
+            subject="Welcome to the neighborhood, NAME – Like a good neighbor State Farm is there"
+            text={`Welcome to State Farm, XX! 
+
+Thank you for choosing State Farm. 
+
+My name is Mark, I will be your local rep for State Farm. 
+
+Just wanted to reach out with my contact info and welcome you to State Farm. 
+
+For your convenience, don’t forget to download the State Farm App.
+
+You can view and pay your bill, access your id cards, connect with your agent (that’s me).
+
+Find the Android or Apple app here -- https://www.statefarm.com/customer-care/download-mobile-apps/state-farm-mobile-app
+
+If you signed up for Drive Safe and Save, you will need to complete the enrollment via the State Farm app and request the devices be sent to you.
+
+Once they arrive, I will reach out with a link to video instructions for the set up.
+
+Let me know if you need anything, I am here to help.`}
             user={user}
           />
           <TemplateCard 
-            title="Notification 2 – 2 Days After"
-            text="Hello CUSTOMER! When we set up your auto policy last week, we enrolled you into Drive Safe and Save with a monthly discount of $XX. In order to complete the set up, you need to log in to your account on the app and order the devices for your vehicles and they will be shipped to you. If you have any questions let me know. Thanks! ~NAME w/ State Farm. 281.547.7209"
+            title="Welcome Email WITH DSS"
+            subject="Welcome to the neighborhood, NAME – Like a good neighbor State Farm is there"
+            text={`Welcome to State Farm, XX! 
+
+Thank you for allowing me the opportunity to be your insurance professional.
+
+For your convenience, don’t forget to download the State Farm App.
+
+You can view and pay your bill, access your id cards, connect with your agent (that’s me).
+
+Find the Android or Apple app here -- https://www.statefarm.com/customer-care/download-mobile-apps/state-farm-mobile-app
+
+We have you signed up for the Drive Safe and Save program and the participation discount. 
+
+To participate and retain the discount, please download the State Farm App and complete enrollment. 
+
+Enrollment and setup for Drive Safe & Save must be completed within the app.
+
+If you happen to know anyone that may benefit from speaking with me about their insurance forward them this email, so they have my contact information as well.
+
+When you have a moment could you do me a favor? Let Google know about your experience. 
+
+Please include my name and how I was able to help you with your insurance.
+
+\\*/ https://g.page/r/CUNh0MHqqBp5EAg/review \\*/ 
+
+If you ever need anything or have any questions reach out anytime. 
+
+I know this is either a scary topic or one that a lot of people think is out of reach. I am here to tell you…neither is true. 
+
+Life insurance is one of the least expensive coverages you can get, especially when you consider the benefits.
+
+Just for future reference, $125,000 in life insurance could be as little as $XX per month.
+
+If you would like to get more info or have a short conversation about life insurance, let me know.`}
             user={user}
           />
           <TemplateCard 
-            title="Notification 3 – Every Other Day"
-            text="CUSTOMER! You are at risk! Of losing the Drive Safe and Save discount of $XX every month. The devices must be ordered and setup to keep the discount. Please log in to the app and order your devices asap. Thanks // NAME // State Farm. 281.547.7209"
+            title="Welcome Email NO DSS"
+            subject="Welcome to the neighborhood, NAME – Like a good neighbor State Farm is there"
+            text={`Welcome to State Farm, XX! 
+
+Thank you for allowing me the opportunity to be your insurance professional.
+
+For your convenience, don’t forget to download the State Farm App.
+
+You can view and pay your bill, access your id cards, connect with your agent (that’s me).
+
+Find the Android or Apple app here -- https://www.statefarm.com/customer-care/download-mobile-apps/state-farm-mobile-app
+
+If you happen to know anyone that may benefit from speaking with me about their insurance forward them this email, so they have my contact information as well.
+
+When you have a moment could you do me a favor? Let Google know about your experience. 
+
+Please include my name and how I was able to help you with your insurance.
+
+\\*/ https://g.page/r/CUNh0MHqqBp5EAg/review \\*/ 
+
+If you ever need anything or have any questions reach out anytime. 
+
+I know this is either a scary topic or one that a lot of people think is out of reach. I am here to tell you…neither is true. 
+
+Life insurance is one of the least expensive coverages you can get, especially when you consider the benefits.
+
+Just for future reference, $125,000 in life insurance could be as little as $XX per month.
+
+If you would like to get more info or have a short conversation about life insurance, let me know.`}
             user={user}
           />
-          <TemplateCard 
-            title="Notification 4 – After Removal Date"
-            text="CUSTOMER, just wanted to remind you to order and set up the Drive Safe and Save devices from StateFarm.com or the app. The discount of $XX was applied to your monthly rate. If the Drive Safe & Save devices are not ordered and set up, the initial participation discount will be removed effective XX/XX/2025 and added to your next bill. ~NAME w/ State Farm. 281.547.7209"
-            user={user}
-          />
+        </div>
+      )
+    },
+    {
+      title: "Drive Safe n' Save Order",
+      desc: "Ordering the beacons",
+      content: (
+        <div className="space-y-4">
+          <NestedAccordion title="Notification 1 Text – DAY AFTER policy was written">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TemplateCard 
+                title="Text Message"
+                text="Hello CUSTOMER, just wanted to say thanks for choosing State Farm and our office. I also wanted to remind you about the Drive Safe and Save devices. I sent you an email to set up a log in for the app, after you download and get logged into the app, click the Safe and Save icon at the bottom of the app. Then scroll down a little and you will see “Your Vehicles” click enroll and follow the prompts to order the Drive Safe and Save beacons. If you have any questions or issues let me know. Thanks // NAME // State Farm // 281.547.7209"
+                user={user}
+              />
+              <div className="bg-[var(--template-bg)] p-6 rounded-xl border border-dashed border-[var(--line)] flex items-center justify-center text-[var(--muted)] text-sm italic">
+                No email for Notification 1
+              </div>
+            </div>
+          </NestedAccordion>
+
+          <NestedAccordion title="Notification 2 Text / Email – 2 DAYS after policy was written">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TemplateCard 
+                title="Text Message"
+                text="Hello CUSTOMER! When we set up your auto policy last week, we enrolled you into Drive Safe and Save with a monthly discount of $XX. In order to complete the set up, you need to log in to your account on the app and order the devices for your vehicles and they will be shipped to you. If you have any questions let me know. Thanks! ~NAME w/ State Farm. 281.547.7209"
+                user={user}
+              />
+              <TemplateCard 
+                title="Email Template"
+                subject="State Farm - Drive Save and Save Action Required To Maintain Discount"
+                text={`Hello NAME! 
+
+When we set up your auto policy last week, we enrolled you into Drive Safe and Save with a monthly discount of $XX.
+
+In order to complete the set up, you need to log in to your account on the app and order the devices for your vehicles and they will be shipped to you.
+
+After you download and get logged into the app, click the Safe and Save icon at the bottom of the app. Then scroll down a little and you will see “Your Vehicles” click enroll and follow the prompts to order the Drive Safe and Save beacons.
+
+You can download the app here: https://www.statefarm.com/customer-care/download-mobile-apps/state-farm-mobile-app or Text “SETUP” to 42407 to download the app
+
+If you have any questions let me know.`}
+                user={user}
+              />
+            </div>
+          </NestedAccordion>
+
+          <NestedAccordion title="Notification 3 – Every Other Day Until Removal Date Is Generated">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TemplateCard 
+                title="Text Message"
+                text="CUSTOMER! You are at risk! Of losing the Drive Safe and Save discount of $XX every month. The devices must be ordered and setup to keep the discount. Please log in to the app and order your devices asap. Thanks // NAME // State Farm. 281.547.7209"
+                user={user}
+              />
+              <TemplateCard 
+                title="Email Template"
+                subject="State Farm - Drive Save and Save Action Required To Maintain Discount"
+                text={`NAME! You are at risk! Of losing the Drive Safe and Save discount of $XX every month. 
+
+The devices must be ordered and setup to keep the discount. Please log in to the app and order your devices asap.
+
+You can download the app here: https://www.statefarm.com/customer-care/download-mobile-apps/state-farm-mobile-app or Text “SETUP” to 42407 to download the app
+
+If you have any questions let me know.`}
+                user={user}
+              />
+            </div>
+          </NestedAccordion>
+
+          <NestedAccordion title="Notification 4 – After the Removal Date Is Generated">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TemplateCard 
+                title="Text Message"
+                text="CUSTOMER, just wanted to remind you to order and set up the Drive Safe and Save devices from StateFarm.com or the app. The discount of $XX was applied to your monthly rate. If the Drive Safe & Save devices are not ordered and set up, the initial participation discount will be removed effective XX/XX/2025 and added to your next bill. ~NAME w/ State Farm. 281.547.7209"
+                user={user}
+              />
+              <TemplateCard 
+                title="Email Template"
+                subject="State Farm - Immediate Action Required To Maintain Your Policy"
+                text={`NAME, just wanted to remind you to order and set up the Drive Safe and Save devices from the State Farm app. 
+
+The discount of $XX was applied to your monthly rate. If the Drive Safe & Save devices are not ordered and set up, the initial participation discount will be removed effective XX/XX/2025 and added to your next bill.
+
+You can download the app here: https://www.statefarm.com/customer-care/download-mobile-apps/state-farm-mobile-app or Text “SETUP” to 42407 to download the app
+
+If you have any questions let me know.`}
+                user={user}
+              />
+            </div>
+          </NestedAccordion>
         </div>
       )
     },
@@ -2430,37 +2699,140 @@ const AfterSalesTemplates = ({ user }: { user: UserProfile | null }) => {
       title: "Drive Safe n' Save Set Up",
       desc: "Setting up the beacons",
       content: (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <TemplateCard 
-            title="Notification 1 – Day after delivery"
-            text="Hey CUSTOMER! Your Drive Safe and Save module should be delivered. Let me know if you have not received it or have any issues. Here is a quick video with instructions on how to set it up: http://st8.fm/mobilesetup. Thanks! ~NAME w/ State Farm."
-            user={user}
-          />
-          <TemplateCard 
-            title="Notification 2 – + 2 Days"
-            text="Hello CUSTOMER! Courtesy reminder to complete the set up for the Drive Safe ‘N Save Device, in order to keep your discount of $ XX per month. Here is a link to a video tutorial that can walk you through the process: http://st8.fm/mobilesetup. If you have any questions, please let me know as soon as possible. Thanks! ~NAME w/ State Farm. 281.547.7209"
-            user={user}
-          />
-          <TemplateCard 
-            title="Notification 3 – Weekend Reminder"
-            text="CUSTOMER, just wanted to say I hope you have a great weekend. During this wonderful weekend you are about to have, could you do me a huge favor?? Set up your Drive Safe and Save device. It should only take about 5 minutes and then you can enjoy the rest of your weekend and the monthly $XX discount on your auto insurance. Thanks // NAME // State Farm // 281.547.7209"
-            user={user}
-          />
-          <TemplateCard 
-            title="Notification 4 – M/W/F Check"
-            text="Just another reminder from State Farm! Make sure you set up your Drive Safe and Save on your phone and place the device in your vehicles. If you need assistance with the setup, please reach out we would be happy to help you. If not completed, you will lose the discounts received, as well as, going forward."
-            user={user}
-          />
-          <TemplateCard 
-            title="Notification 5 – Risk Alert"
-            text="CUSTOMER! You are at risk! Of losing a major discount on your auto insurance coverage as well as having to pay back the discounts you have already received. Drive Safe and Save is saving you $ XX every month. Since this is a participation discount you will get charged for the discounts you have already received plus lose the $ XX per month. Please set up as soon as possible. Thanks // NAME // State Farm. 281.547.7209"
-            user={user}
-          />
-          <TemplateCard 
-            title="Notification 6 – Last Chance"
-            text="Good afternoon, CUSTOMER. This is your last chance. If your Drive Safe and Save is not set up by MONTH/DAY you will lose the discount! Since this is a participation discount, you will lose the discount of $XX per month and be charged for the discounts you have already received. If you need assistance in setting this up let me know. Thanks // NAME // State Farm // 281.547.7209"
-            user={user}
-          />
+        <div className="space-y-4">
+          <NestedAccordion title="Notification 1 – Day After Delivery">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TemplateCard 
+                title="Text Message"
+                text="Hello CUSTOMER, NAME with State Farm. Our records show your Drive Safe and Save device was delivered. Do you have a few minutes to set it up? It should only take about 5 minutes. If you have any issues let me know. Thanks // NAME // State Farm // 281.547.7209"
+                user={user}
+              />
+              <TemplateCard 
+                title="Email Template"
+                subject="State Farm - Drive Save and Save Delivered"
+                text={`Hey NAME! Your Drive Safe and Save module should be delivered. 
+
+Let me know if you did not receive it or have any issues. 
+
+Text “SETUP” to 42407 to download the app or call us 24/7 at 888-559-1922 for help. 
+
+You can also watch this video for detailed instructions on how to set it up: http://st8.fm/mobilesetup.`}
+                user={user}
+              />
+            </div>
+          </NestedAccordion>
+
+          <NestedAccordion title="Notification 2 – Plus 2 Days">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TemplateCard 
+                title="Text Message"
+                text="CUSTOMER, hope your day is going well. Just wanted to remind you to complete the set up for the Drive Safe ‘N Save Device. This will keep your discount of $XX per month. If you have any questions let me know. Thanks // NAME // State Farm // 281.547.7209"
+                user={user}
+              />
+              <TemplateCard 
+                title="Email Template"
+                subject="State Farm - Drive Safe and Save Discount"
+                text={`Hello NAME! 
+
+Courtesy reminder to complete the set up for the Drive Safe ‘N Save Device, in order to keep your discount of $ XX per month. 
+
+Here is a link to a video tutorial that can walk you through the process: http://st8.fm/mobilesetup. 
+
+If you have any questions, please let me know as soon as possible.`}
+                user={user}
+              />
+            </div>
+          </NestedAccordion>
+
+          <NestedAccordion title="Notification 3 – Friday of the week after writing the policy">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TemplateCard 
+                title="Text Message"
+                text="NAME, just wanted to say I hope you have a great weekend. During this wonderful weekend you are about to have, could you do me a huge favor?? Set up your Drive Safe and Save device. Should only take about 5 minutes and then you can enjoy the rest of your weekend and the monthly $XX discount. Thanks // NAME // State Farm // 281.547.7209"
+                user={user}
+              />
+              <TemplateCard 
+                title="Email Template"
+                subject="State Farm - Don't Forget About Your Discount!!"
+                text={`NAME, just wanted to say I hope you have a great weekend. 
+
+During this wonderful weekend you are about to have, could you do me a huge favor?? Set up your Drive Safe and Save device. 
+
+Should only take about 5 minutes and then you can enjoy the rest of your weekend and the monthly $XX discount on your auto insurance. 
+
+Call State Farm Support 24/7 at 888-559-1922 if you can’t get the device set up. 
+
+Here is a video with detailed instructions: http://st8.fm/mobilesetup. Let me know if you have any questions`}
+                user={user}
+              />
+            </div>
+          </NestedAccordion>
+
+          <NestedAccordion title="Notification 4 – M/W/F">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TemplateCard 
+                title="Text Message"
+                text="Hey CUSTOMER, just checking in. Were you able to get that Drive Safe and Save device set up? If you need any help let me know. Thanks // NAME // State Farm // 281.547.7209"
+                user={user}
+              />
+              <TemplateCard 
+                title="Email Template"
+                subject="State Farm - Action Requested for Discounts"
+                text={`Just another reminder from State Farm! 
+
+Make sure you set up your Drive Safe and Save on your phone and place the device in your vehicles.
+
+If you need assistance with the setup, please reach out we would be happy to help you. 
+
+If not completed, you will lose the discounts received, as well as, going forward.`}
+                user={user}
+              />
+            </div>
+          </NestedAccordion>
+
+          <NestedAccordion title="Notification 5 – M/W/F">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TemplateCard 
+                title="Text Message"
+                text="CUSTOMER! You are at risk! Of losing a major discount on your auto insurance coverage. Drive Safe and Save is saving you $XX every month. Please set it up asap to keep the discount. Thanks // NAME // State Farm // 281.547.7209"
+                user={user}
+              />
+              <TemplateCard 
+                title="Email Template"
+                subject="State Farm - Action Required for Discounts"
+                text={`NAME! You are at risk! Of losing a major discount on your auto insurance coverage as well as having to pay back the discounts you have already received. 
+
+Drive Safe and Save is saving you $ XX every month.
+
+Since this is a participation discount you will get charged for the discounts you already received plus loose the $ XX per month.
+
+Text “SETUP” to 42407 to download the app or call us 24/7 at 888-559-1922 for help. You can also watch this video for detailed instructions on how to set it up: http://st8.fm/mobilesetup.`}
+                user={user}
+              />
+            </div>
+          </NestedAccordion>
+
+          <NestedAccordion title="Notification 6 – Last Chance">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TemplateCard 
+                title="Text Message"
+                text="Good afternoon, NAME. This is your last chance! If your Drive Safe and Save is not set up by MONTH/DAY you will lose the $XX discount and be charged for the discounts you already received. Let me know if you need help. Thanks // NAME // State Farm // 281.547.7209"
+                user={user}
+              />
+              <TemplateCard 
+                title="Email Template"
+                subject="State Farm - Action Required For Discount - Final Notice"
+                text={`Good afternoon, NAME. This is your last chance!
+
+If your Drive Safe and Save is not set up by MONTH/DAY you will lose the discount! 
+
+Since this is a participation discount, you will lose the discount of $XX per month and be charged for the discounts you already received. 
+
+If you need assistance in setting this up let me know.`}
+                user={user}
+              />
+            </div>
+          </NestedAccordion>
         </div>
       )
     }
@@ -3428,13 +3800,15 @@ const Directory = () => {
  * Allows users to generate and copy a professional agency signature.
  */
 const Signature = ({ user }: { user: UserProfile }) => {
-  const baseUrl = "images"; // Use relative path to public/images
+  // Using reliable CDN icons for the email signature.
+  // This ensures images load correctly in Outlook and for email recipients,
+  // even if local files are missing from the server.
   const icons = {
-    addr: `${baseUrl}/mappin.png`,
-    phone: `${baseUrl}/phone.png`,
-    web: `${baseUrl}/website.png`,
-    fb: `${baseUrl}/facebook.png`,
-    sfLogo: `${baseUrl}/statefarmlogo.png` 
+    addr: "https://cdn-icons-png.flaticon.com/512/450/450016.png",
+    phone: "https://cdn-icons-png.flaticon.com/512/724/724664.png",
+    web: "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+    fb: "https://cdn-icons-png.flaticon.com/512/124/124010.png",
+    sfLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/State_Farm_logo.svg/512px-State_Farm_logo.svg.png"
   };
 
   const copySignature = () => {
@@ -3471,16 +3845,22 @@ const Signature = ({ user }: { user: UserProfile }) => {
                   <tr>
                     <td align="center">
                       <span style={{ fontSize: '13px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2.2px', display: 'block' }}>DANIEL LOTTINGER</span>
-                      <img src={icons.sfLogo} alt="State Farm" width="150" style={{ display: 'block' }} />
+                      <img 
+                        src={icons.sfLogo} 
+                        alt="State Farm" 
+                        width="150" 
+                        style={{ display: 'block' }} 
+                        referrerPolicy="no-referrer"
+                      />
                     </td>
                   </tr>
                 </tbody>
               </table>
               <table border={0} cellPadding={0} cellSpacing={0} style={{ fontSize: '15px', color: '#374151' }}>
                 <tbody>
-                  <tr><td style={{ paddingRight: '8px' }}><img src={icons.addr} width="16" /></td><td>21901 State Highway 249, Houston, TX 77070</td></tr>
-                  <tr><td style={{ paddingRight: '8px' }}><img src={icons.phone} width="16" /></td><td>281.547.7209</td></tr>
-                  <tr><td style={{ paddingRight: '8px' }}><img src={icons.web} width="16" /></td><td><a href="https://daniellottinger.com" style={{ color: '#1d4ed8' }}>daniellottinger.com</a></td></tr>
+                  <tr><td style={{ paddingRight: '8px' }}><img src={icons.addr} width="16" referrerPolicy="no-referrer" /></td><td>21901 State Highway 249, Houston, TX 77070</td></tr>
+                  <tr><td style={{ paddingRight: '8px' }}><img src={icons.phone} width="16" referrerPolicy="no-referrer" /></td><td>281.547.7209</td></tr>
+                  <tr><td style={{ paddingRight: '8px' }}><img src={icons.web} width="16" referrerPolicy="no-referrer" /></td><td><a href="https://daniellottinger.com" style={{ color: '#1d4ed8' }}>daniellottinger.com</a></td></tr>
                 </tbody>
               </table>
             </div>
@@ -3715,29 +4095,45 @@ const LifeHub = () => (
 );
 
 const PCStudyGuide = () => {
+  // Using the GitHub Pages URL as the base for images to ensure they load
+  // even if they haven't synced to the local environment yet.
+  const getImgPath = (path: string) => {
+    return `https://dlsf.github.io/agency-playbook/${path}`;
+  };
+
   const slides = [
-    { img: "images/pcstudy/pcstudy00.png", alt: "Cover" },
-    { img: "images/pcstudy/pcstudy01.png", alt: "Risk" },
-    { img: "images/pcstudy/pcstudy02.png", alt: "DICE" },
-    { img: "images/pcstudy/pcstudy03.png", alt: "Legal" },
-    { img: "images/pcstudy/pcstudy04.png", alt: "Prop vs Liab" },
-    { img: "images/pcstudy/pcstudy05.png", alt: "Valuation" },
-    { img: "images/pcstudy/pcstudy06.png", alt: "Perils" },
-    { img: "images/pcstudy/pcstudy07.png", alt: "Negligence" },
-    { img: "images/pcstudy/pcstudy08.png", alt: "Defense" },
-    { img: "images/pcstudy/pcstudy09.png", alt: "Residential" },
-    { img: "images/pcstudy/pcstudy10.png", alt: "Commercial" },
-    { img: "images/pcstudy/pcstudy11.png", alt: "Professional" },
-    { img: "images/pcstudy/pcstudy12.png", alt: "Compliance" },
-    { img: "images/pcstudy/pcstudy13.png", alt: "Safety Nets" },
-    { img: "images/pcstudy/pcstudy14.png", alt: "Anomalies" },
+    { img: getImgPath("images/pcstudy/pcstudy01.png"), alt: "Risk" },
+    { img: getImgPath("images/pcstudy/pcstudy02.png"), alt: "DICE" },
+    { img: getImgPath("images/pcstudy/pcstudy03.png"), alt: "Legal" },
+    { img: getImgPath("images/pcstudy/pcstudy04.png"), alt: "Prop vs Liab" },
+    { img: getImgPath("images/pcstudy/pcstudy05.png"), alt: "Valuation" },
+    { img: getImgPath("images/pcstudy/pcstudy06.png"), alt: "Perils" },
+    { img: getImgPath("images/pcstudy/pcstudy07.png"), alt: "Negligence" },
+    { img: getImgPath("images/pcstudy/pcstudy08.png"), alt: "Defense" },
+    { img: getImgPath("images/pcstudy/pcstudy09.png"), alt: "Residential" },
+    { img: getImgPath("images/pcstudy/pcstudy10.png"), alt: "Commercial" },
+    { img: getImgPath("images/pcstudy/pcstudy11.png"), alt: "Professional" },
+    { img: getImgPath("images/pcstudy/pcstudy12.png"), alt: "Compliance" },
+    { img: getImgPath("images/pcstudy/pcstudy13.png"), alt: "Safety Nets" },
+    { img: getImgPath("images/pcstudy/pcstudy14.png"), alt: "Anomalies" },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
-  const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % slides.length);
-  const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  const nextSlide = () => {
+    setImgError(false);
+    setCurrentIndex((prev) => (prev + 1) % slides.length);
+  };
+  const prevSlide = () => {
+    setImgError(false);
+    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  useEffect(() => {
+    setImgError(false);
+  }, [currentIndex]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -3765,17 +4161,36 @@ const PCStudyGuide = () => {
       <div className={`relative group ${isFullscreen ? 'fixed inset-0 z-[200] bg-black flex flex-col' : 'max-w-4xl mx-auto'}`}>
         <div className={`relative bg-black rounded-t-[var(--radius)] overflow-hidden ${isFullscreen ? 'flex-grow' : 'aspect-video shadow-2xl border border-[var(--line)]'}`}>
           <AnimatePresence mode="wait">
-            <motion.img 
-              key={currentIndex}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              src={slides[currentIndex].img} 
-              alt={slides[currentIndex].alt}
-              className="w-full h-full object-contain"
-              referrerPolicy="no-referrer"
-            />
+            {!imgError ? (
+              <motion.img 
+                key={currentIndex}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+                src={slides[currentIndex].img} 
+                alt={slides[currentIndex].alt}
+                className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <motion.div 
+                key="error"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="w-full h-full flex flex-col items-center justify-center text-white p-10 text-center"
+              >
+                <div className="text-5xl mb-4">🖼️</div>
+                <h3 className="text-xl font-bold mb-2">Slide Image Missing</h3>
+                <p className="text-gray-400 max-w-md">
+                  The image file <code className="bg-gray-800 px-2 py-1 rounded text-blue-400">{slides[currentIndex].img}</code> was not found in the public folder.
+                </p>
+                <p className="text-sm text-gray-500 mt-4 italic">
+                  Please upload the study guide images to the /public/images/pcstudy/ directory.
+                </p>
+              </motion.div>
+            )}
           </AnimatePresence>
           
           {/* Overlay Controls */}
