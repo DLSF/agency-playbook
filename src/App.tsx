@@ -164,7 +164,12 @@ const ProtectedRoute = ({ children, user, requiredUser }: { children: React.Reac
  * Replaces NAME, TIMEDAY, DAY, and CUSTOMER with dynamic values.
  */
 const useTokens = (user: UserProfile | null) => {
-  const getTimeDay = () => new Date().getHours() < 12 ? 'morning' : 'afternoon';
+  const getTimeDay = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'morning';
+    if (hour < 17) return 'afternoon';
+    return 'evening';
+  };
   const getDayName = () => new Date().toLocaleDateString('en-US', { weekday: 'long' });
 
   const applyTokens = (text: string) => {
@@ -1286,7 +1291,7 @@ const InternetLeads = ({ user }: { user: UserProfile | null }) => {
           <EmailTemplateCard 
             title="Step 06 Email 2"
             subject="Initial quote from State Farm"
-            text={`Good afternoon, CUSTOMER.\n\nI was just looking for some feedback on the quote I sent over a few days ago.\n\nI have not heard back and not sure if you received it.\n\nWould you like me to resend it?`}
+            text={`Good TIMEDAY, CUSTOMER.\n\nI was just looking for some feedback on the quote I sent over a few days ago.\n\nI have not heard back and not sure if you received it.\n\nWould you like me to resend it?`}
             user={user}
           />
         </div>
@@ -1316,7 +1321,7 @@ const InternetLeads = ({ user }: { user: UserProfile | null }) => {
           <EmailTemplateCard 
             title="Step 08 Email 3"
             subject="Even if you don’t go with State Farm, make sure you have adequate coverage."
-            text={`Good afternoon, CUSTOMER.\n\nIf you are paying more than $XX for auto insurance.\nWe could save you money every month.\n\nWhat would be a good time to give you a call to discuss?`}
+            text={`Good TIMEDAY, CUSTOMER.\n\nIf you are paying more than $XX for auto insurance.\nWe could save you money every month.\n\nWhat would be a good time to give you a call to discuss?`}
             user={user}
           />
         </div>
@@ -1463,7 +1468,7 @@ const WinbackTemplates = ({ user }: { user: UserProfile | null }) => {
           <EmailTemplateCard 
             title="WX3 Email"
             subject="CUSTOMER, State Farm has a fresh quote for you"
-            text={`Good afternoon, CUSTOMER. It’s NAME with State Farm.\nGot a quick question for you.\n\nHave you had an opportunity to think about coming back over to State Farm?\nWould you mind if I sent over a quote, including our recent price decrease?`}
+            text={`Good TIMEDAY, CUSTOMER. It’s NAME with State Farm.\nGot a quick question for you.\n\nHave you had an opportunity to think about coming back over to State Farm?\nWould you mind if I sent over a quote, including our recent price decrease? Thanks // NAME // State Farm // 281.547.7209`}
             user={user}
           />
         </div>
@@ -1692,7 +1697,7 @@ May I send over a quote and get your feedback?`}
               <EmailTemplateCard 
                 title="XA4 Email" 
                 subject="Quick Question from State Farm"
-                text={`Good afternoon, CUSTOMER.
+                text={`Good TIMEDAY, CUSTOMER.
 
 It’s NAME with State Farm.
 
@@ -2102,13 +2107,13 @@ const FollowUpTemplates = ({ user }: { user: UserProfile | null }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TemplateCard 
             title="F2 Text"
-            text="Good afternoon, CUSTOMER. Quick question, I just wanted to make sure. Did you get the quotes I sent over? Thanks // NAME"
+            text="Good TIMEDAY, CUSTOMER. Quick question, I just wanted to make sure. Did you get the quotes I sent over? Thanks // NAME"
             user={user}
           />
           <EmailTemplateCard 
             title="F2 Email"
             subject="State Farm Quotes"
-            text={`Good afternoon, CUSTOMER.\n\nQuick question, I just wanted to make sure.\n\nDid you get the quotes I sent over?`}
+            text={`Good TIMEDAY, CUSTOMER.\n\nQuick question, I just wanted to make sure.\n\nDid you get the quotes I sent over?`}
             user={user}
           />
         </div>
@@ -2178,13 +2183,13 @@ const FollowUpTemplates = ({ user }: { user: UserProfile | null }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <TemplateCard 
             title="F6 Text"
-            text="Good afternoon, CUSTOMER. To keep from annoying you with endless texts and calls, I will reach out in a few MONTHS/WEEKS when we get closer to your next renewal in MONTH. I have your quote for $XXX saved, if at any point you want to get started call, text or email anytime. Thanks // NAME // State Farm // 281.547.7209"
+            text="Good TIMEDAY, CUSTOMER. To keep from annoying you with endless texts and calls, I will reach out in a few MONTHS/WEEKS when we get closer to your next renewal in MONTH. I have your quote for $XXX saved, if at any point you want to get started call, text or email anytime. Thanks // NAME // State Farm // 281.547.7209"
             user={user}
           />
           <EmailTemplateCard 
             title="F6 Email"
             subject="Future Quote from State Farm"
-            text={`Good afternoon, CUSTOMER.\n\nTo keep from annoying you with endless texts and calls, I will reach out in a few MONTHWEEK when we get closer to your next renewal in MONTH.\n\nI have your quote for $XXX saved, if at any point you want to get started call or text anytime.`}
+            text={`Good TIMEDAY, CUSTOMER.\n\nTo keep from annoying you with endless texts and calls, I will reach out in a few MONTHWEEK when we get closer to your next renewal in MONTH.\n\nI have your quote for $XXX saved, if at any point you want to get started call or text anytime.`}
             user={user}
           />
         </div>
@@ -2631,7 +2636,7 @@ If you would like to get more info or have a short conversation about life insur
               <TemplateCard 
                 title="Email Template"
                 subject="State Farm - Drive Save and Save Action Required To Maintain Discount"
-                text={`Hello NAME! 
+                text={`Hello CUSTOMER! 
 
 When we set up your auto policy last week, we enrolled you into Drive Safe and Save with a monthly discount of $XX.
 
@@ -2657,7 +2662,7 @@ If you have any questions let me know.`}
               <TemplateCard 
                 title="Email Template"
                 subject="State Farm - Drive Save and Save Action Required To Maintain Discount"
-                text={`NAME! You are at risk! Of losing the Drive Safe and Save discount of $XX every month. 
+                text={`CUSTOMER! You are at risk! Of losing the Drive Safe and Save discount of $XX every month. 
 
 The devices must be ordered and setup to keep the discount. Please log in to the app and order your devices asap.
 
@@ -2679,7 +2684,7 @@ If you have any questions let me know.`}
               <TemplateCard 
                 title="Email Template"
                 subject="State Farm - Immediate Action Required To Maintain Your Policy"
-                text={`NAME, just wanted to remind you to order and set up the Drive Safe and Save devices from the State Farm app. 
+                text={`CUSTOMER, just wanted to remind you to order and set up the Drive Safe and Save devices from the State Farm app. 
 
 The discount of $XX was applied to your monthly rate. If the Drive Safe & Save devices are not ordered and set up, the initial participation discount will be removed effective XX/XX/2025 and added to your next bill.
 
@@ -2702,13 +2707,13 @@ If you have any questions let me know.`}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <TemplateCard 
                 title="Text Message"
-                text="Hello CUSTOMER, NAME with State Farm. Our records show your Drive Safe and Save device was delivered. Do you have a few minutes to set it up? It should only take about 5 minutes. If you have any issues let me know. Thanks // NAME // State Farm // 281.547.7209"
+                text="Hey CUSTOMER! Your Drive Safe and Save module should be delivered. Let me know if you have not received it or have any issues. Here is a quick video with instructions on how to set it up: http://st8.fm/mobilesetup. Thanks! ~NAME w/ State Farm."
                 user={user}
               />
               <TemplateCard 
                 title="Email Template"
                 subject="State Farm - Drive Save and Save Delivered"
-                text={`Hey NAME! Your Drive Safe and Save module should be delivered. 
+                text={`Hey CUSTOMER! Your Drive Safe and Save module should be delivered. 
 
 Let me know if you did not receive it or have any issues. 
 
@@ -2730,7 +2735,7 @@ You can also watch this video for detailed instructions on how to set it up: htt
               <TemplateCard 
                 title="Email Template"
                 subject="State Farm - Drive Safe and Save Discount"
-                text={`Hello NAME! 
+                text={`Hello CUSTOMER! 
 
 Courtesy reminder to complete the set up for the Drive Safe ‘N Save Device, in order to keep your discount of $ XX per month. 
 
@@ -2746,13 +2751,13 @@ If you have any questions, please let me know as soon as possible.`}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <TemplateCard 
                 title="Text Message"
-                text="NAME, just wanted to say I hope you have a great weekend. During this wonderful weekend you are about to have, could you do me a huge favor?? Set up your Drive Safe and Save device. Should only take about 5 minutes and then you can enjoy the rest of your weekend and the monthly $XX discount. Thanks // NAME // State Farm // 281.547.7209"
+                text="CUSTOMER, just wanted to say I hope you have a great weekend. During this wonderful weekend you are about to have, could you do me a huge favor?? Set up your Drive Safe and Save device. Should only take about 5 minutes and then you can enjoy the rest of your weekend and the monthly $XX discount. Thanks // NAME // State Farm // 281.547.7209"
                 user={user}
               />
               <TemplateCard 
                 title="Email Template"
                 subject="State Farm - Don't Forget About Your Discount!!"
-                text={`NAME, just wanted to say I hope you have a great weekend. 
+                text={`CUSTOMER, just wanted to say I hope you have a great weekend. 
 
 During this wonderful weekend you are about to have, could you do me a huge favor?? Set up your Drive Safe and Save device. 
 
@@ -2798,7 +2803,7 @@ If not completed, you will lose the discounts received, as well as, going forwar
               <TemplateCard 
                 title="Email Template"
                 subject="State Farm - Action Required for Discounts"
-                text={`NAME! You are at risk! Of losing a major discount on your auto insurance coverage as well as having to pay back the discounts you have already received. 
+                text={`CUSTOMER! You are at risk! Of losing a major discount on your auto insurance coverage as well as having to pay back the discounts you have already received. 
 
 Drive Safe and Save is saving you $ XX every month.
 
@@ -2814,13 +2819,13 @@ Text “SETUP” to 42407 to download the app or call us 24/7 at 888-559-1922 fo
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <TemplateCard 
                 title="Text Message"
-                text="Good afternoon, NAME. This is your last chance! If your Drive Safe and Save is not set up by MONTH/DAY you will lose the $XX discount and be charged for the discounts you already received. Let me know if you need help. Thanks // NAME // State Farm // 281.547.7209"
+                text="Good TIMEDAY, CUSTOMER. This is your last chance! If your Drive Safe and Save is not set up by MONTH/DAY you will lose the $XX discount and be charged for the discounts you already received. Let me know if you need help. Thanks // NAME // State Farm // 281.547.7209"
                 user={user}
               />
               <TemplateCard 
                 title="Email Template"
                 subject="State Farm - Action Required For Discount - Final Notice"
-                text={`Good afternoon, NAME. This is your last chance!
+                text={`Good TIMEDAY, CUSTOMER. This is your last chance!
 
 If your Drive Safe and Save is not set up by MONTH/DAY you will lose the discount! 
 
@@ -3804,8 +3809,9 @@ const Signature = ({ user }: { user: UserProfile }) => {
   const icons = {
     addr: "https://cdn-icons-png.flaticon.com/512/450/450016.png",
     phone: "https://cdn-icons-png.flaticon.com/512/724/724664.png",
+    email: "https://cdn-icons-png.flaticon.com/512/542/542689.png",
     web: "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
-    fb: "https://cdn-icons-png.flaticon.com/512/124/124010.png",
+    fb: "https://cdn-icons-png.flaticon.com/512/733/733547.png",
     sfLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/State_Farm_logo.svg/512px-State_Farm_logo.svg.png"
   };
 
@@ -3858,6 +3864,9 @@ const Signature = ({ user }: { user: UserProfile }) => {
                 <tbody>
                   <tr><td style={{ paddingRight: '8px' }}><img src={icons.addr} width="16" referrerPolicy="no-referrer" /></td><td>21901 State Highway 249, Houston, TX 77070</td></tr>
                   <tr><td style={{ paddingRight: '8px' }}><img src={icons.phone} width="16" referrerPolicy="no-referrer" /></td><td>281.547.7209</td></tr>
+                  {user.email && (
+                    <tr><td style={{ paddingRight: '8px' }}><img src={icons.email} width="16" referrerPolicy="no-referrer" /></td><td><a href={`mailto:${user.email}`} style={{ color: '#1d4ed8' }}>{user.email}</a></td></tr>
+                  )}
                   <tr><td style={{ paddingRight: '8px' }}><img src={icons.web} width="16" referrerPolicy="no-referrer" /></td><td><a href="https://daniellottinger.com" style={{ color: '#1d4ed8' }}>daniellottinger.com</a></td></tr>
                 </tbody>
               </table>
