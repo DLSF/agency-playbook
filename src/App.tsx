@@ -319,7 +319,10 @@ const EmailTemplateCard = ({ title, subject: explicitSubject, text, user }: { ti
     body = text;
   }
 
-  return <TemplateCard title={title} subject={subject} text={body} user={user} isMarkdown={true} />;
+  // Append extra newlines for signature space in Outlook/Copy
+  const bodyWithReturn = body.trimEnd() + '\n\n';
+
+  return <TemplateCard title={title} subject={subject} text={bodyWithReturn} user={user} isMarkdown={true} />;
 };
 
 /**
@@ -2511,7 +2514,7 @@ const AfterSalesTemplates = ({ user }: { user: UserProfile | null }) => {
       desc: "Initial onboarding and welcome messages",
       content: (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <TemplateCard 
+          <EmailTemplateCard 
             title="Welcome Email SF Bound"
             subject="Welcome to the neighborhood, NAME – Like a good neighbor State Farm is there"
             text={`Welcome to State Farm, XX! 
@@ -2535,7 +2538,7 @@ Once they arrive, I will reach out with a link to video instructions for the set
 Let me know if you need anything, I am here to help.`}
             user={user}
           />
-          <TemplateCard 
+          <EmailTemplateCard 
             title="Welcome Email WITH DSS"
             subject="Welcome to the neighborhood, NAME – Like a good neighbor State Farm is there"
             text={`Welcome to State Farm, XX! 
@@ -2573,7 +2576,7 @@ Just for future reference, $125,000 in life insurance could be as little as $XX 
 If you would like to get more info or have a short conversation about life insurance, let me know.`}
             user={user}
           />
-          <TemplateCard 
+          <EmailTemplateCard 
             title="Welcome Email NO DSS"
             subject="Welcome to the neighborhood, NAME – Like a good neighbor State Farm is there"
             text={`Welcome to State Farm, XX! 
@@ -2633,7 +2636,7 @@ If you would like to get more info or have a short conversation about life insur
                 text="Hello CUSTOMER! When we set up your auto policy last week, we enrolled you into Drive Safe and Save with a monthly discount of $XX. In order to complete the set up, you need to log in to your account on the app and order the devices for your vehicles and they will be shipped to you. If you have any questions let me know. Thanks! ~NAME w/ State Farm. 281.547.7209"
                 user={user}
               />
-              <TemplateCard 
+              <EmailTemplateCard 
                 title="Email Template"
                 subject="State Farm - Drive Save and Save Action Required To Maintain Discount"
                 text={`Hello CUSTOMER! 
@@ -2659,7 +2662,7 @@ If you have any questions let me know.`}
                 text="CUSTOMER! You are at risk! Of losing the Drive Safe and Save discount of $XX every month. The devices must be ordered and setup to keep the discount. Please log in to the app and order your devices asap. Thanks // NAME // State Farm. 281.547.7209"
                 user={user}
               />
-              <TemplateCard 
+              <EmailTemplateCard 
                 title="Email Template"
                 subject="State Farm - Drive Save and Save Action Required To Maintain Discount"
                 text={`CUSTOMER! You are at risk! Of losing the Drive Safe and Save discount of $XX every month. 
@@ -2681,7 +2684,7 @@ If you have any questions let me know.`}
                 text="CUSTOMER, just wanted to remind you to order and set up the Drive Safe and Save devices from StateFarm.com or the app. The discount of $XX was applied to your monthly rate. If the Drive Safe & Save devices are not ordered and set up, the initial participation discount will be removed effective XX/XX/2025 and added to your next bill. ~NAME w/ State Farm. 281.547.7209"
                 user={user}
               />
-              <TemplateCard 
+              <EmailTemplateCard 
                 title="Email Template"
                 subject="State Farm - Immediate Action Required To Maintain Your Policy"
                 text={`CUSTOMER, just wanted to remind you to order and set up the Drive Safe and Save devices from the State Farm app. 
@@ -2710,7 +2713,7 @@ If you have any questions let me know.`}
                 text="Hey CUSTOMER! Your Drive Safe and Save module should be delivered. Let me know if you have not received it or have any issues. Here is a quick video with instructions on how to set it up: http://st8.fm/mobilesetup. Thanks! ~NAME w/ State Farm."
                 user={user}
               />
-              <TemplateCard 
+              <EmailTemplateCard 
                 title="Email Template"
                 subject="State Farm - Drive Save and Save Delivered"
                 text={`Hey CUSTOMER! Your Drive Safe and Save module should be delivered. 
@@ -2732,7 +2735,7 @@ You can also watch this video for detailed instructions on how to set it up: htt
                 text="CUSTOMER, hope your day is going well. Just wanted to remind you to complete the set up for the Drive Safe ‘N Save Device. This will keep your discount of $XX per month. If you have any questions let me know. Thanks // NAME // State Farm // 281.547.7209"
                 user={user}
               />
-              <TemplateCard 
+              <EmailTemplateCard 
                 title="Email Template"
                 subject="State Farm - Drive Safe and Save Discount"
                 text={`Hello CUSTOMER! 
@@ -2754,7 +2757,7 @@ If you have any questions, please let me know as soon as possible.`}
                 text="CUSTOMER, just wanted to say I hope you have a great weekend. During this wonderful weekend you are about to have, could you do me a huge favor?? Set up your Drive Safe and Save device. Should only take about 5 minutes and then you can enjoy the rest of your weekend and the monthly $XX discount. Thanks // NAME // State Farm // 281.547.7209"
                 user={user}
               />
-              <TemplateCard 
+              <EmailTemplateCard 
                 title="Email Template"
                 subject="State Farm - Don't Forget About Your Discount!!"
                 text={`CUSTOMER, just wanted to say I hope you have a great weekend. 
@@ -2778,7 +2781,7 @@ Here is a video with detailed instructions: http://st8.fm/mobilesetup. Let me kn
                 text="Hey CUSTOMER, just checking in. Were you able to get that Drive Safe and Save device set up? If you need any help let me know. Thanks // NAME // State Farm // 281.547.7209"
                 user={user}
               />
-              <TemplateCard 
+              <EmailTemplateCard 
                 title="Email Template"
                 subject="State Farm - Action Requested for Discounts"
                 text={`Just another reminder from State Farm! 
@@ -2800,7 +2803,7 @@ If not completed, you will lose the discounts received, as well as, going forwar
                 text="CUSTOMER! You are at risk! Of losing a major discount on your auto insurance coverage. Drive Safe and Save is saving you $XX every month. Please set it up asap to keep the discount. Thanks // NAME // State Farm // 281.547.7209"
                 user={user}
               />
-              <TemplateCard 
+              <EmailTemplateCard 
                 title="Email Template"
                 subject="State Farm - Action Required for Discounts"
                 text={`CUSTOMER! You are at risk! Of losing a major discount on your auto insurance coverage as well as having to pay back the discounts you have already received. 
@@ -2822,7 +2825,7 @@ Text “SETUP” to 42407 to download the app or call us 24/7 at 888-559-1922 fo
                 text="Good TIMEDAY, CUSTOMER. This is your last chance! If your Drive Safe and Save is not set up by MONTH/DAY you will lose the $XX discount and be charged for the discounts you already received. Let me know if you need help. Thanks // NAME // State Farm // 281.547.7209"
                 user={user}
               />
-              <TemplateCard 
+              <EmailTemplateCard 
                 title="Email Template"
                 subject="State Farm - Action Required For Discount - Final Notice"
                 text={`Good TIMEDAY, CUSTOMER. This is your last chance!
